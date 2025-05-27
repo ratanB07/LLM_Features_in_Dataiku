@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Mesh - Data Analysis Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --dataiku-blue: #2563eb;
+            --dataiku-green: #059669;
+            --dataiku-purple: #7c3aed;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #1e293b;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--dataiku-blue) 0%, var(--dataiku-purple) 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+        }
+        
+        .header h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .analysis-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .analysis-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-right: 1rem;
+        }
+        
+        .icon-profiling { background: linear-gradient(135deg, var(--dataiku-blue), #3b82f6); }
+        .icon-anomaly { background: linear-gradient(135deg, var(--danger-color), #f87171); }
+        .icon-insights { background: linear-gradient(135deg, var(--dataiku-green), #34d399); }
+        .icon-summary { background: linear-gradient(135deg, var(--dataiku-purple), #a855f7); }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+        
+        .metric-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dataiku-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .insight-item {
+            padding: 1rem 1.5rem;
+            border-left: 4px solid var(--dataiku-blue);
+            background: #f8fafc;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .insight-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .insight-description {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid var(--dataiku-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .progress-bar-custom {
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--dataiku-blue), var(--dataiku-green));
+            border-radius: 4px;
+            transition: width 2s ease;
+        }
+        
+        .info-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+        
+        .info-section h3 {
+            color: var(--dataiku-blue);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-section h3 i {
+            margin-right: 0.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--dataiku-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .advantage-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 12px;
+            border-left: 4px solid var(--dataiku-green);
+        }
+        
+        .advantage-icon {
+            color: var(--dataiku-green);
+            font-size: 1.25rem;
+            margin-right: 1rem;
+            margin-top: 0.25rem;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: var(--dataiku-blue);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        }
+        
+        .llm-mesh-badge {
+            background: linear-gradient(135deg, var(--dataiku-purple), #a855f7);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .llm-mesh-badge i {
+            margin-right: 0.5rem;
+        }
+        
+        .column-analysis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .column-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+        
+        .column-name {
+            font-weight: 600;
+            color: var(--dataiku-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .column-type {
+            background: var(--dataiku-green);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .anomaly-alert {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .anomaly-title {
+            font-weight: 600;
+            color: var(--danger-color);
+            margin-bottom: 0.25rem;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button">
+        <i class="bi bi-arrow-left me-2"></i>
+        Back to Dashboard
+    </a>
+
+    <div class="header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="llm-mesh-badge">
+                        <i class="bi bi-diagram-3"></i>
+                        LLM Mesh Technology
+                    </div>
+                    <h1 class="animate__animated animate__fadeInUp">LLM Mesh Analysis</h1>
+                    <p class="subtitle animate__animated animate__fadeInUp animate__delay-1s">
+                        Advanced multi-LLM data analysis powered by distributed intelligence
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <div class="me-3">
+                            <div class="text-white-50 small">Dataset</div>
+                            <div id="dataset-name" class="fw-bold">Loading...</div>
+                        </div>
+                        <i class="bi bi-database" style="font-size: 2rem; opacity: 0.7;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <!-- Loading State -->
+        <div id="loading-section" class="loading-spinner">
+            <div class="text-center">
+                <div class="spinner"></div>
+                <h4 class="mt-3">Initializing LLM Mesh Analysis...</h4>
+                <p class="text-muted">Coordinating multiple LLMs for comprehensive data insights</p>
+                <div class="progress-bar-custom" style="width: 300px; margin: 1rem auto;">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                </div>
+                <div id="progress-text" class="small text-muted">Preparing analysis...</div>
+            </div>
+        </div>
+
+        <!-- Analysis Results -->
+        <div id="analysis-results" class="d-none">
+            <!-- Data Profiling Card -->
+            <div class="analysis-card fade-in">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon icon-profiling">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">Data Profiling & Quality Assessment</h4>
+                            <small class="text-muted">Comprehensive dataset analysis using ensemble LLMs</small>
+                        </div>
+                    </div>
+                    <span class="badge bg-success">Complete</span>
+                </div>
+                <div class="metric-grid" id="profiling-metrics">
+                    <!-- Metrics will be populated here -->
+                </div>
+            </div>
+
+            <!-- Anomaly Detection Card -->
+            <div class="analysis-card fade-in">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon icon-anomaly">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">Anomaly Detection</h4>
+                            <small class="text-muted">Multi-model anomaly identification and scoring</small>
+                        </div>
+                    </div>
+                    <span class="badge bg-warning">Analyzing</span>
+                </div>
+                <div class="p-3" id="anomaly-results">
+                    <!-- Anomaly results will be populated here -->
+                </div>
+            </div>
+
+            <!-- Column Summarization Card -->
+            <div class="analysis-card fade-in">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon icon-summary">
+                            <i class="bi bi-list-columns"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">Intelligent Column Summarization</h4>
+                            <small class="text-muted">AI-powered feature analysis and recommendations</small>
+                        </div>
+                    </div>
+                    <span class="badge bg-info">Processing</span>
+                </div>
+                <div class="column-analysis p-3" id="column-summary">
+                    <!-- Column analysis will be populated here -->
+                </div>
+            </div>
+
+            <!-- AI Insights Card -->
+            <div class="analysis-card fade-in">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon icon-insights">
+                            <i class="bi bi-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">Strategic Insights & Recommendations</h4>
+                            <small class="text-muted">Cross-LLM consensus on data patterns and opportunities</small>
+                        </div>
+                    </div>
+                    <span class="badge bg-primary">Generated</span>
+                </div>
+                <div class="p-3" id="ai-insights">
+                    <!-- AI insights will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Sections -->
+        <div class="info-section">
+            <h3>
+                <i class="bi bi-book"></i>
+                Why We Use LLM Mesh in ETL
+            </h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="advantage-item">
+                        <i class="bi bi-diagram-3 advantage-icon"></i>
+                        <div>
+                            <strong>Distributed Intelligence</strong>
+                            <p class="mb-0 mt-1">Multiple specialized LLMs work together, each contributing their unique strengths for comprehensive analysis.</p>
+                        </div>
+                    </div>
+                    <div class="advantage-item">
+                        <i class="bi bi-shield-check advantage-icon"></i>
+                        <div>
+                            <strong>Enhanced Reliability</strong>
+                            <p class="mb-0 mt-1">Cross-validation between models reduces errors and increases confidence in analytical results.</p>
+                        </div>
+                    </div>
+                    <div class="advantage-item">
+                        <i class="bi bi-speedometer2 advantage-icon"></i>
+                        <div>
+                            <strong>Parallel Processing</strong>
+                            <p class="mb-0 mt-1">Simultaneous analysis by multiple models dramatically reduces processing time for large datasets.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="advantage-item">
+                        <i class="bi bi-puzzle advantage-icon"></i>
+                        <div>
+                            <strong>Specialized Expertise</strong>
+                            <p class="mb-0 mt-1">Different models excel at different tasks - statistical analysis, pattern recognition, natural language processing.</p>
+                        </div>
+                    </div>
+                    <div class="advantage-item">
+                        <i class="bi bi-arrow-up-right advantage-icon"></i>
+                        <div>
+                            <strong>Scalable Architecture</strong>
+                            <p class="mb-0 mt-1">Easily add new models or scale existing ones based on workload and complexity requirements.</p>
+                        </div>
+                    </div>
+                    <div class="advantage-item">
+                        <i class="bi bi-graph-up-arrow advantage-icon"></i>
+                        <div>
+                            <strong>Continuous Learning</strong>
+                            <p class="mb-0 mt-1">Models learn from each other's outputs, improving overall system performance over time.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>
+                <i class="bi bi-gear"></i>
+                How to Use LLM Mesh
+            </h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div>
+                            <strong>Upload Your Dataset</strong>
+                            <p class="mb-0 mt-1">Start by uploading your CSV or Excel file through the main dashboard. The system automatically detects data types and structure.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div>
+                            <strong>Automatic Analysis Initiation</strong>
+                            <p class="mb-0 mt-1">Click the LLM Mesh button to trigger multi-model analysis. The system distributes tasks across specialized LLMs.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div>
+                            <strong>Real-time Results</strong>
+                            <p class="mb-0 mt-1">Watch as different analysis components complete in real-time, with progress indicators and live updates.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div>
+                            <strong>Review Insights</strong>
+                            <p class="mb-0 mt-1">Examine the comprehensive analysis including data quality, anomalies, column summaries, and strategic recommendations.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">5</div>
+                        <div>
+                            <strong>Export & Act</strong>
+                            <p class="mb-0 mt-1">Download detailed reports, export insights, or use the recommendations to guide your next analytical steps.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">6</div>
+                        <div>
+                            <strong>Iterate & Improve</strong>
+                            <p class="mb-0 mt-1">Use the insights to refine your data, then re-run analysis to see improvements and discover new patterns.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate loading progress
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const loadingSection = document.getElementById('loading-section');
+            const analysisResults = document.getElementById('analysis-results');
+            
+            const progressSteps = [
+                { percent: 20, text: 'Initializing LLM mesh network...' },
+                { percent: 40, text: 'Distributing analysis tasks...' },
+                { percent: 60, text: 'Processing data with multiple models...' },
+                { percent: 80, text: 'Aggregating results...' },
+                { percent: 100, text: 'Analysis complete!' }
+            ];
+            
+            let currentStep = 0;
+            
+            function updateProgress() {
+                if (currentStep < progressSteps.length) {
+                    const step = progressSteps[currentStep];
+                    progressFill.style.width = step.percent + '%';
+                    progressText.textContent = step.text;
+                    currentStep++;
+                    
+                    if (currentStep < progressSteps.length) {
+                        setTimeout(updateProgress, 1500);
+                    } else {
+                        setTimeout(showResults, 1000);
+                    }
+                }
+            }
+            
+            function showResults() {
+                loadingSection.classList.add('d-none');
+                analysisResults.classList.remove('d-none');
+                loadAnalysisData();
+            }
+            
+            function loadAnalysisData() {
+                // Fetch analysis data from the backend
+                fetch('/api/llm_mesh/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Error:', data.error);
+                        return;
+                    }
+                    
+                    // Update dataset name
+                    document.getElementById('dataset-name').textContent = data.dataset_name || 'Unknown Dataset';
+                    
+                    // Populate profiling metrics
+                    populateProfilingMetrics(data.profiling);
+                    
+                    // Populate anomaly results
+                    populateAnomalyResults(data.anomalies);
+                    
+                    // Populate column summary
+                    populateColumnSummary(data.column_analysis);
+                    
+                    // Populate AI insights
+                    populateAIInsights(data.insights);
+                })
+                .catch(error => {
+                    console.error('Error loading analysis data:', error);
+                });
+            }
+            
+            function populateProfilingMetrics(profiling) {
+                const container = document.getElementById('profiling-metrics');
+                if (!profiling) return;
+                
+                const metrics = [
+                    { label: 'Total Rows', value: profiling.total_rows || 0 },
+                    { label: 'Total Columns', value: profiling.total_columns || 0 },
+                    { label: 'Missing Values', value: profiling.missing_values || 0 },
+                    { label: 'Data Quality Score', value: profiling.quality_score || 'N/A' },
+                    { label: 'Numeric Columns', value: profiling.numeric_columns || 0 },
+                    { label: 'Categorical Columns', value: profiling.categorical_columns || 0 }
+                ];
+                
+                container.innerHTML = metrics.map(metric => `
+                    <div class="metric-item">
+                        <div class="metric-value">${metric.value}</div>
+                        <div class="metric-label">${metric.label}</div>
+                    </div>
+                `).join('');
+            }
+            
+            function populateAnomalyResults(anomalies) {
+                const container = document.getElementById('anomaly-results');
+                if (!anomalies || !anomalies.length) {
+                    container.innerHTML = '<p class="text-muted">No significant anomalies detected.</p>';
+                    return;
+                }
+                
+                container.innerHTML = anomalies.map(anomaly => `
+                    <div class="anomaly-alert">
+                        <div class="anomaly-title">${anomaly.type}</div>
+                        <div>${anomaly.description}</div>
+                        <small class="text-muted">Confidence: ${anomaly.confidence}%</small>
+                    </div>
+                `).join('');
+            }
+            
+            function populateColumnSummary(columns) {
+                const container = document.getElementById('column-summary');
+                if (!columns || !columns.length) return;
+                
+                container.innerHTML = columns.map(col => `
+                    <div class="column-card">
+                        <div class="column-name">${col.name}</div>
+                        <div class="column-type">${col.type}</div>
+                        <div class="small text-muted">${col.summary}</div>
+                        ${col.recommendation ? `<div class="mt-2 small"><strong>Recommendation:</strong> ${col.recommendation}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+            
+            function populateAIInsights(insights) {
+                const container = document.getElementById('ai-insights');
+                if (!insights || !insights.length) return;
+                
+                container.innerHTML = insights.map(insight => `
+                    <div class="insight-item">
+                        <div class="insight-title">${insight.title}</div>
+                        <div class="insight-description">${insight.description}</div>
+                    </div>
+                `).join('');
+            }
+            
+            // Start the loading process
+            setTimeout(updateProgress, 500);
+        });
+    </script>
+</body>
+</html>

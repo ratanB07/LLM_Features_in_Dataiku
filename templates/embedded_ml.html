@@ -1,0 +1,2773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedded ML for Data Matching & Clustering</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --sidebar-width: 280px;
+            --header-height: 72px;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            height: var(--header-height);
+            z-index: 1030;
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand img {
+            height: 32px;
+            margin-right: 12px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 40px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: calc(100vh - var(--header-height));
+        }
+        
+        /* Header */
+        .page-header {
+            background: var(--gradient-primary);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .page-header-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        
+        .page-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 24px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .card:hover {
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+            padding: 20px 24px;
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+        
+        /* Stepper */
+        .stepper {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex: 1;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #E2E8F0;
+            z-index: -1;
+        }
+        
+        .step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+            color: #64748B;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-number {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 8px 16px rgba(51, 102, 255, 0.3);
+        }
+        
+        .step.completed .step-number {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            color: #64748B;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-title {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        
+        /* Multi-select with search */
+        .multi-select-container {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        
+        .multi-select-container .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .multi-select-container .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(51, 102, 255, 0.2);
+        }
+        
+        .multi-select-container .options-container {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            margin-top: 4px;
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 10;
+            border: 1px solid #E2E8F0;
+            display: none;
+        }
+        
+        .multi-select-container .option {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .multi-select-container .option:hover {
+            background: rgba(51, 102, 255, 0.05);
+        }
+        
+        .multi-select-container .option.selected {
+            background: rgba(51, 102, 255, 0.1);
+        }
+        
+        .multi-select-container .option input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        
+        .multi-select-container .selected-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .multi-select-container .selected-option {
+            background: rgba(51, 102, 255, 0.1);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 14px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .multi-select-container .selected-option i {
+            margin-left: 8px;
+            cursor: pointer;
+        }
+        
+        /* Visualizations */
+        .visualization-container {
+            height: 400px;
+            position: relative;
+            margin-bottom: 24px;
+        }
+        
+        /* Loader */
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 100;
+            border-radius: 16px;
+        }
+        
+        .loader {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid rgba(51, 102, 255, 0.1);
+            border-top-color: var(--primary-color);
+            animation: spin 1s infinite linear;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 10px 22px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        /* Badges */
+        .badge-primary {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Custom styling for sections */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--dark-color);
+        }
+        
+        .section-subtitle {
+            font-size: 1rem;
+            color: #64748B;
+            margin-bottom: 24px;
+        }
+        
+        /* Data table */
+        .data-table-container {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .data-table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 16px 20px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: left;
+        }
+        
+        .data-table tbody tr:nth-child(odd) {
+            background-color: rgba(51, 102, 255, 0.02);
+        }
+        
+        .data-table tbody tr:hover {
+            background-color: rgba(51, 102, 255, 0.05);
+        }
+        
+        .data-table td {
+            padding: 12px 20px;
+            border-top: 1px solid #E2E8F0;
+        }
+        
+        /* Cluster visualization */
+        .cluster-container {
+            height: 500px;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+        
+        .cluster-container svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Match highlight */
+        .match-highlight {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+        
+        /* How-to section */
+        .how-to-section {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            margin-top: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .how-to-step {
+            display: flex;
+            margin-bottom: 24px;
+        }
+        
+        .how-to-step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+        
+        .how-to-step-content {
+            flex: 1;
+        }
+        
+        .how-to-step-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        /* Collapsible sections */
+        .collapsible-section {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .collapsible-header {
+            padding: 16px 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+        }
+        
+        .collapsible-header:hover {
+            background-color: rgba(51, 102, 255, 0.05);
+        }
+        
+        .collapsible-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .collapsible-content.active {
+            padding: 24px;
+            max-height: 1000px;
+        }
+        
+        /* Metrics cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        
+        .metric-label {
+            color: #64748B;
+            font-weight: 500;
+        }
+        
+        /* Animation */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Loading animation */
+        .loading-dots:after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+            100% { content: ''; }
+        }
+        
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #E2E8F0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background: var(--gradient-primary);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Custom radio */
+        .custom-radio {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .custom-radio-option {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .custom-radio-option input[type="radio"] {
+            display: none;
+        }
+        
+        .custom-radio-label {
+            display: block;
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-radio-option input[type="radio"]:checked + .custom-radio-label {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(51, 102, 255, 0.2);
+            background: rgba(51, 102, 255, 0.05);
+        }
+        
+        .custom-radio-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .custom-radio-title i {
+            margin-right: 8px;
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+        
+        .custom-radio-description {
+            color: #64748B;
+            font-size: 14px;
+        }
+        
+        /* Parameters form */
+        .parameters-form {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-select, .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-select:focus, .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(51, 102, 255, 0.2);
+        }
+        
+        /* Tooltips */
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background: #E2E8F0;
+            color: #64748B;
+            border-radius: 50%;
+            font-size: 12px;
+            margin-left: 8px;
+            cursor: help;
+            position: relative;
+        }
+        
+        .tooltip-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark-color);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 400;
+            width: 250px;
+            white-space: normal;
+            z-index: 100;
+            margin-bottom: 8px;
+        }
+        
+        .tooltip-icon:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: var(--dark-color) transparent transparent transparent;
+            z-index: 100;
+        }
+        
+        /* Tab navigation */
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid #E2E8F0;
+            margin-bottom: 24px;
+        }
+        
+        .tab-link {
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            color: #64748B;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-link.active {
+            color: var(--primary-color);
+        }
+        
+        .tab-link::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .tab-link.active::after {
+            transform: scaleX(1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Fancy decorative element */
+        .decorative-pattern {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background-image: radial-gradient(circle, rgba(51, 102, 255, 0.1) 10%, transparent 10.5%);
+            background-size: 20px 20px;
+            opacity: 0.5;
+            z-index: -1;
+        }
+        
+        .decorative-pattern.top-right {
+            top: -100px;
+            right: -100px;
+        }
+        
+        .decorative-pattern.bottom-left {
+            bottom: -100px;
+            left: -100px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
+                    <path d="M8 12h16v8H8z" fill="white" opacity="0.9"/>
+                    <path d="M12 8h8v16h-8z" fill="white" opacity="0.7"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3366FF"/>
+                            <stop offset="50%" style="stop-color:#6366F1"/>
+                            <stop offset="100%" style="stop-color:#8B5CF6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                Dataiku
+            </a>
+            <div class="d-flex align-items-center ms-auto">
+                <div id="dataset-chip" class="dataset-chip me-3">
+                    <i class="bi bi-table"></i>
+                    <span id="dataset-name">Loading dataset...</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>
+                        User
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Decorative pattern -->
+        <div class="decorative-pattern top-right"></div>
+        <div class="decorative-pattern bottom-left"></div>
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">Embedded ML for Data Matching & Clustering</h1>
+                <p class="page-subtitle">Leverage AI-powered algorithms to automatically identify patterns, match similar records, and cluster your data for enhanced ETL workflows.</p>
+                <div class="badge badge-primary">
+                    <i class="bi bi-stars me-1"></i>
+                    AI-Powered
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stepper -->
+        <div class="stepper mb-5">
+            <div class="step active" id="step1">
+                <div class="step-number">1</div>
+                <div class="step-title">Configure</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <div class="step-title">Process</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <div class="step-title">Results</div>
+            </div>
+        </div>
+        
+        <!-- Step 1: Configure -->
+        <div class="step-content active" id="step1-content">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Data Selection</h5>
+                            <span class="badge-primary">
+                                <i class="bi bi-table me-1"></i>
+                                Required
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Select Columns for Analysis
+                                    <span class="tooltip-icon" data-tooltip="Choose columns that contain information for matching records or finding clusters. Text and numeric columns work best.">i</span>
+                                </label>
+                                <div class="multi-select-container">
+                                    <input type="text" class="search-input" placeholder="Search columns..." id="column-search">
+                                    <div class="options-container" id="column-options">
+                                        <!-- Options will be dynamically populated -->
+                                    </div>
+                                    <div class="selected-options" id="selected-columns">
+                                        <!-- Selected options will appear here -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Key Column 
+                                    <span class="tooltip-icon" data-tooltip="A unique identifier for each record. This will be preserved in the results.">i</span>
+                                </label>
+                                <select class="form-select" id="key-column">
+                                    <option value="">Select a key column...</option>
+                                    <!-- Options will be dynamically populated -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Model Selection</h5>
+                            <span class="badge-primary">
+                                <i class="bi bi-robot me-1"></i>
+                                Required
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Processing Type</label>
+                                <div class="custom-radio">
+                                    <div class="custom-radio-option">
+                                        <input type="radio" name="processing-type" id="data-matching" value="matching" checked>
+                                        <label for="data-matching" class="custom-radio-label">
+                                            <div class="custom-radio-title">
+                                                <i class="bi bi-link"></i>
+                                                Data Matching
+                                            </div>
+                                            <div class="custom-radio-description">
+                                                Find and link similar records based on fuzzy matching algorithms
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="custom-radio-option">
+                                        <input type="radio" name="processing-type" id="data-clustering" value="clustering">
+                                        <label for="data-clustering" class="custom-radio-label">
+                                            <div class="custom-radio-title">
+                                                <i class="bi bi-diagram-3"></i>
+                                                Data Clustering
+                                            </div>
+                                            <div class="custom-radio-description">
+                                                Group similar records automatically using ML clustering algorithms
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    AI Model
+                                    <span class="tooltip-icon" data-tooltip="The model that will process your data. Advanced models provide better results but may take longer.">i</span>
+                                </label>
+                                <select class="form-select" id="model-selection">
+                                    <option value="azure-gpt4">Azure GPT-4o (Recommended)</option>
+                                    <option value="text-embedding">Text Embedding + Clustering</option>
+                                    <option value="fuzzy-matching">Traditional Fuzzy Matching</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group mb-0">
+                                <label class="form-label d-flex justify-content-between align-items-center">
+                                    <span>
+                                        Matching Threshold
+                                        <span class="tooltip-icon" data-tooltip="Higher values require closer matches. Lower values find more potential matches but may include false positives.">i</span>
+                                    </span>
+                                    <span id="threshold-value">0.7</span>
+                                </label>
+                                <input type="range" class="form-range" min="0.1" max="0.9" step="0.05" value="0.7" id="matching-threshold">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">More inclusive</small>
+                                    <small class="text-muted">More precise</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Advanced Parameters</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            Number of Clusters
+                                            <span class="tooltip-icon" data-tooltip="For clustering only. The number of groups to create. Leave at 'Auto' to let the algorithm decide.">i</span>
+                                        </label>
+                                        <select class="form-select" id="num-clusters">
+                                            <option value="auto">Auto (Recommended)</option>
+                                            <option value="2">2 clusters</option>
+                                            <option value="3">3 clusters</option>
+                                            <option value="5">5 clusters</option>
+                                            <option value="10">10 clusters</option>
+                                            <option value="custom">Custom...</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group" id="custom-clusters-container" style="display: none;">
+                                        <label class="form-label">Custom Number of Clusters</label>
+                                        <input type="number" class="form-control" id="custom-clusters" min="2" max="50" value="4">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Text Preprocessing</label>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="lowercase" checked>
+                                            <label class="form-check-label" for="lowercase">
+                                                Convert to lowercase
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="remove-punctuation" checked>
+                                            <label class="form-check-label" for="remove-punctuation">
+                                                Remove punctuation
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="remove-stopwords" checked>
+                                            <label class="form-check-label" for="remove-stopwords">
+                                                Remove stopwords
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-0">
+                                        <label class="form-label d-flex justify-content-between align-items-center">
+                                            <span>
+                                                Use Advanced ETL Features
+                                                <span class="tooltip-icon" data-tooltip="Advanced features use LLMs to explain changes, suggest transformations, and provide insights">i</span>
+                                            </span>
+                                        </label>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="advanced-etl" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group mb-0">
+                                        <label class="form-label">Output Format</label>
+                                        <select class="form-select" id="output-format">
+                                            <option value="enhanced">Enhanced Dataset (Original + Results)</option>
+                                            <option value="matched-only">Matched Records Only</option>
+                                            <option value="transform">Apply Transformations In-Place</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end mt-4 mb-5">
+                        <button class="btn btn-primary" id="run-analysis">
+                            <i class="bi bi-play-fill me-2"></i>
+                            Run Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Step 2: Process -->
+        <div class="step-content" id="step2-content" style="display: none;">
+            <div class="card mb-4">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <h4 id="processing-status">Processing your data<span class="loading-dots"></span></h4>
+                    <p class="text-muted" id="processing-detail">Initializing embedded ML algorithms</p>
+                    
+                    <div class="progress mt-4 mb-3" style="height: 10px;">
+                        <div class="progress-bar" id="processing-progress" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <p class="text-muted small" id="progress-text">0%</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Processing Log</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="log-container p-3 bg-light rounded" style="height: 250px; overflow-y: auto; font-family: monospace; font-size: 14px;">
+                                <div id="processing-log">
+                                    <!-- Log entries will be added here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Current Operation</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-cpu" style="font-size: 32px; color: var(--primary-color);"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0" id="current-operation">Initializing</h6>
+                                    <small class="text-muted" id="operation-detail">Setting up processing environment</small>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6>Estimated Time Remaining</h6>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-clock me-2" style="font-size: 20px; color: var(--primary-color);"></i>
+                                    <span id="time-remaining">Calculating...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-center mt-4 mb-5">
+                <button class="btn btn-outline-secondary me-3" id="cancel-analysis">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Cancel
+                </button>
+            </div>
+        </div>
+        
+        <!-- Step 3: Results -->
+        <div class="step-content" id="step3-content" style="display: none;">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="alert alert-success d-flex align-items-center" role="alert">
+                        <i class="bi bi-check-circle-fill me-3" style="font-size: 24px;"></i>
+                        <div>
+                            <strong>Analysis Complete!</strong> Your data has been processed successfully.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs" id="result-tabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="summary-tab" data-bs-toggle="tab" href="#summary">Summary</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="visualization-tab" data-bs-toggle="tab" href="#visualization">Visualization</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="data-tab" data-bs-toggle="tab" href="#data">Data</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="insights-tab" data-bs-toggle="tab" href="#insights">AI Insights</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content">
+                                <!-- Summary Tab -->
+                                <div class="tab-pane fade show active" id="summary">
+                                    <div class="metrics-grid">
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="total-records">0</div>
+                                            <div class="metric-label">Total Records</div>
+                                        </div>
+                                        
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="matches-found">0</div>
+                                            <div class="metric-label">Matches Found</div>
+                                        </div>
+                                        
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="clusters-found">0</div>
+                                            <div class="metric-label">Clusters Identified</div>
+                                        </div>
+                                        
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="similarity-score">0%</div>
+                                            <div class="metric-label">Avg. Similarity Score</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h5 class="section-title">Analysis Overview</h5>
+                                            <div class="card mb-4">
+                                                <div class="card-body" id="analysis-summary">
+                                                    <!-- Analysis summary will be inserted here -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <h5 class="section-title">Suggested Actions</h5>
+                                            <div class="card mb-4">
+                                                <div class="card-body">
+                                                    <ul class="list-group list-group-flush" id="suggested-actions">
+                                                        <!-- Suggested actions will be inserted here -->
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Visualization Tab -->
+                                <div class="tab-pane fade" id="visualization">
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <h5 class="section-title mb-0">Data Relationship Visualization</h5>
+                                        <div class="btn-group">
+                                            <button class="btn btn-outline-primary active" id="cluster-view-btn">Cluster View</button>
+                                            <button class="btn btn-outline-primary" id="network-view-btn">Network View</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="cluster-container" id="visualization-container">
+                                        <!-- Visualization will be rendered here -->
+                                    </div>
+                                    
+                                    <div class="row mt-4">
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h5 class="mb-0">Cluster Distribution</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <canvas id="cluster-chart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h5 class="mb-0">Similarity Distribution</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <canvas id="similarity-chart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Data Tab -->
+                                <div class="tab-pane fade" id="data">
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <h5 class="section-title mb-0">Processed Data</h5>
+                                        <button class="btn btn-primary" id="download-data">
+                                            <i class="bi bi-download me-2"></i>
+                                            Download Data
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="data-table-container mb-4">
+                                        <div class="table-responsive">
+                                            <table class="data-table" id="result-table">
+                                                <thead>
+                                                    <tr id="result-table-header">
+                                                        <!-- Headers will be inserted here -->
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="result-table-body">
+                                                    <!-- Data rows will be inserted here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <label for="rows-per-page" class="me-2">Rows per page:</label>
+                                            <select id="rows-per-page" class="form-select form-select-sm d-inline-block" style="width: 80px;">
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="pagination">
+                                            <button class="btn btn-sm btn-outline-secondary me-2" id="prev-page">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </button>
+                                            <span id="pagination-info">Page 1 of 1</span>
+                                            <button class="btn btn-sm btn-outline-secondary ms-2" id="next-page">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- AI Insights Tab -->
+                                <div class="tab-pane fade" id="insights">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h5 class="section-title">AI-Generated Insights</h5>
+                                            <div class="card mb-4">
+                                                <div class="card-body" id="ai-insights">
+                                                    <!-- AI insights will be inserted here -->
+                                                </div>
+                                            </div>
+                                            
+                                            <h5 class="section-title">Recommended Data Transformations</h5>
+                                            <div id="transformations-container">
+                                                <!-- Transformation cards will be inserted here -->
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4">
+                                            <h5 class="section-title">Pattern Analysis</h5>
+                                            <div class="card mb-4">
+                                                <div class="card-body">
+                                                    <div id="patterns-list">
+                                                        <!-- Pattern items will be inserted here -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <h5 class="section-title">Quality Metrics</h5>
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <canvas id="quality-chart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-center mt-4 mb-4">
+                <button class="btn btn-outline-primary me-3" id="new-analysis">
+                    <i class="bi bi-arrow-repeat me-2"></i>
+                    New Analysis
+                </button>
+                <button class="btn btn-primary" id="apply-transformations">
+                    <i class="bi bi-check2-circle me-2"></i>
+                    Apply Transformations
+                </button>
+            </div>
+        </div>
+        
+        <!-- How-to Section -->
+        <div class="how-to-section">
+            <h4 class="mb-4">Why Use Embedded ML for ETL Processes?</h4>
+            <p class="mb-4">
+                Data matching and clustering are critical components of modern ETL (Extract, Transform, Load) workflows. 
+                Our embedded ML solution provides powerful capabilities that traditional rule-based approaches cannot match:
+            </p>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-lightbulb me-2" style="color: var(--primary-color);"></i>
+                                Key Benefits
+                            </h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill me-2" style="color: var(--success-color);"></i>
+                                    <strong>Entity Resolution:</strong> Automatically identify and merge duplicate records
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill me-2" style="color: var(--success-color);"></i>
+                                    <strong>Pattern Discovery:</strong> Uncover hidden patterns and relationships
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill me-2" style="color: var(--success-color);"></i>
+                                    <strong>Data Cleansing:</strong> Identify and fix inconsistencies
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill me-2" style="color: var(--success-color);"></i>
+                                    <strong>Segment Creation:</strong> Automatically create logical data segments
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill me-2" style="color: var(--success-color);"></i>
+                                    <strong>Process Automation:</strong> Reduce manual matching efforts by up to 90%
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-gear me-2" style="color: var(--primary-color);"></i>
+                                Common Use Cases
+                            </h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill me-2" style="color: var(--success-color);"></i>
+                                    <strong>Customer Data Integration:</strong> Create a unified customer view
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill me-2" style="color: var(--success-color);"></i>
+                                    <strong>Product Catalog Harmonization:</strong> Standardize product data
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill me-2" style="color: var(--success-color);"></i>
+                                    <strong>Fraud Detection:</strong> Identify suspicious patterns
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill me-2" style="color: var(--success-color);"></i>
+                                    <strong>Data Migration:</strong> Clean and de-duplicate before moving data
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill me-2" style="color: var(--success-color);"></i>
+                                    <strong>Market Segmentation:</strong> Create customer segments for analysis
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h4 class="mb-4">How to Use This Feature</h4>
+            
+            <div class="how-to-step">
+                <div class="how-to-step-number">1</div>
+                <div class="how-to-step-content">
+                    <h5 class="how-to-step-title">Configure Your Analysis</h5>
+                    <p>
+                        Select the columns you want to include in your analysis. Choose columns that contain identifying information or data points that could indicate similarity between records. Then select a key column that uniquely identifies each record.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="how-to-step">
+                <div class="how-to-step-number">2</div>
+                <div class="how-to-step-content">
+                    <h5 class="how-to-step-title">Choose Processing Type and Model</h5>
+                    <p>
+                        Select between Data Matching (for finding similar records) or Data Clustering (for automatically grouping records). Choose the AI model based on your needs - Azure GPT-4o provides the most advanced analysis but may take longer to process.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="how-to-step">
+                <div class="how-to-step-number">3</div>
+                <div class="how-to-step-content">
+                    <h5 class="how-to-step-title">Adjust Parameters</h5>
+                    <p>
+                        Set the matching threshold based on how strict you want the matching to be. A higher threshold (e.g., 0.8) will find only very close matches, while a lower threshold (e.g., 0.5) will find more potential matches but may include false positives.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="how-to-step">
+                <div class="how-to-step-number">4</div>
+                <div class="how-to-step-content">
+                    <h5 class="how-to-step-title">Run Analysis and Review Results</h5>
+                    <p>
+                        Click "Run Analysis" and wait for the process to complete. Once finished, you can explore the results through various visualizations, review the matched or clustered data, and see AI-generated insights about patterns in your data.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="how-to-step">
+                <div class="how-to-step-number">5</div>
+                <div class="how-to-step-content">
+                    <h5 class="how-to-step-title">Download or Apply Transformations</h5>
+                    <p>
+                        Download the processed data for further use in your ETL pipeline, or apply the suggested transformations directly to your dataset. The enhanced data will include match IDs, cluster assignments, and similarity scores.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get session ID from URL or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            let sessionId = urlParams.get('session_id') || localStorage.getItem('session_id');
+            
+            // DOM Elements
+            const elements = {
+                // Steps
+                step1: document.getElementById('step1'),
+                step2: document.getElementById('step2'),
+                step3: document.getElementById('step3'),
+                step1Content: document.getElementById('step1-content'),
+                step2Content: document.getElementById('step2-content'),
+                step3Content: document.getElementById('step3-content'),
+                
+                // Data selection
+                columnSearch: document.getElementById('column-search'),
+                columnOptions: document.getElementById('column-options'),
+                selectedColumns: document.getElementById('selected-columns'),
+                keyColumn: document.getElementById('key-column'),
+                
+                // Model selection
+                processingType: document.querySelectorAll('input[name="processing-type"]'),
+                modelSelection: document.getElementById('model-selection'),
+                matchingThreshold: document.getElementById('matching-threshold'),
+                thresholdValue: document.getElementById('threshold-value'),
+                
+                // Advanced parameters
+                numClusters: document.getElementById('num-clusters'),
+                customClustersContainer: document.getElementById('custom-clusters-container'),
+                customClusters: document.getElementById('custom-clusters'),
+                lowercase: document.getElementById('lowercase'),
+                removePunctuation: document.getElementById('remove-punctuation'),
+                removeStopwords: document.getElementById('remove-stopwords'),
+                advancedEtl: document.getElementById('advanced-etl'),
+                outputFormat: document.getElementById('output-format'),
+                
+                // Action buttons
+                runAnalysis: document.getElementById('run-analysis'),
+                cancelAnalysis: document.getElementById('cancel-analysis'),
+                newAnalysis: document.getElementById('new-analysis'),
+                applyTransformations: document.getElementById('apply-transformations'),
+                downloadData: document.getElementById('download-data'),
+                
+                // Processing status
+                processingStatus: document.getElementById('processing-status'),
+                processingDetail: document.getElementById('processing-detail'),
+                processingProgress: document.getElementById('processing-progress'),
+                progressText: document.getElementById('progress-text'),
+                processingLog: document.getElementById('processing-log'),
+                currentOperation: document.getElementById('current-operation'),
+                operationDetail: document.getElementById('operation-detail'),
+                timeRemaining: document.getElementById('time-remaining'),
+                
+                // Results
+                totalRecords: document.getElementById('total-records'),
+                matchesFound: document.getElementById('matches-found'),
+                clustersFound: document.getElementById('clusters-found'),
+                similarityScore: document.getElementById('similarity-score'),
+                analysisSummary: document.getElementById('analysis-summary'),
+                suggestedActions: document.getElementById('suggested-actions'),
+                visualizationContainer: document.getElementById('visualization-container'),
+                clusterChart: document.getElementById('cluster-chart'),
+                similarityChart: document.getElementById('similarity-chart'),
+                qualityChart: document.getElementById('quality-chart'),
+                resultTableHeader: document.getElementById('result-table-header'),
+                resultTableBody: document.getElementById('result-table-body'),
+                rowsPerPage: document.getElementById('rows-per-page'),
+                prevPage: document.getElementById('prev-page'),
+                nextPage: document.getElementById('next-page'),
+                paginationInfo: document.getElementById('pagination-info'),
+                aiInsights: document.getElementById('ai-insights'),
+                transformationsContainer: document.getElementById('transformations-container'),
+                patternsList: document.getElementById('patterns-list'),
+                
+                // Visualization controls
+                clusterViewBtn: document.getElementById('cluster-view-btn'),
+                networkViewBtn: document.getElementById('network-view-btn'),
+                
+                // Dataset info
+                datasetName: document.getElementById('dataset-name')
+            };
+            
+            // App state
+            const state = {
+                sessionId: sessionId,
+                columns: [],
+                selectedColumns: [],
+                processingType: 'matching',
+                model: 'azure-gpt4',
+                threshold: 0.7,
+                numClusters: 'auto',
+                datasetInfo: null,
+                results: null,
+                pagination: {
+                    currentPage: 1,
+                    rowsPerPage: 10,
+                    totalPages: 1
+                }
+            };
+            
+            // Setup event listeners
+            function setupEventListeners() {
+                // Matching threshold slider
+                elements.matchingThreshold.addEventListener('input', function() {
+                    state.threshold = parseFloat(this.value);
+                    elements.thresholdValue.textContent = this.value;
+                });
+                
+                // Number of clusters change
+                elements.numClusters.addEventListener('change', function() {
+                    if (this.value === 'custom') {
+                        elements.customClustersContainer.style.display = 'block';
+                    } else {
+                        elements.customClustersContainer.style.display = 'none';
+                    }
+                });
+                
+                // Processing type radio buttons
+                elements.processingType.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        state.processingType = this.value;
+                    });
+                });
+                
+                // Column search functionality
+                elements.columnSearch.addEventListener('focus', function() {
+                    elements.columnOptions.style.display = 'block';
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!elements.columnSearch.contains(e.target) && !elements.columnOptions.contains(e.target)) {
+                        elements.columnOptions.style.display = 'none';
+                    }
+                });
+                
+                elements.columnSearch.addEventListener('input', function() {
+                    const searchValue = this.value.toLowerCase();
+                    const options = elements.columnOptions.querySelectorAll('.option');
+                    
+                    options.forEach(option => {
+                        const text = option.textContent.toLowerCase();
+                        if (text.includes(searchValue)) {
+                            option.style.display = 'flex';
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+                });
+                
+                // Run analysis button
+                elements.runAnalysis.addEventListener('click', function() {
+                    if (validateForm()) {
+                        startAnalysis();
+                    }
+                });
+                
+                // Cancel analysis button
+                elements.cancelAnalysis.addEventListener('click', function() {
+                    cancelAnalysis();
+                });
+                
+                // New analysis button
+                elements.newAnalysis.addEventListener('click', function() {
+                    resetToStep1();
+                });
+                
+                // Download data button
+                elements.downloadData.addEventListener('click', function() {
+                    downloadResults();
+                });
+                
+                // Apply transformations button
+                elements.applyTransformations.addEventListener('click', function() {
+                    applyTransformations();
+                });
+                
+                // Visualization toggle buttons
+                elements.clusterViewBtn.addEventListener('click', function() {
+                    elements.clusterViewBtn.classList.add('active');
+                    elements.networkViewBtn.classList.remove('active');
+                    renderClusterView();
+                });
+                
+                elements.networkViewBtn.addEventListener('click', function() {
+                    elements.networkViewBtn.classList.add('active');
+                    elements.clusterViewBtn.classList.remove('active');
+                    renderNetworkView();
+                });
+                
+                // Pagination controls
+                elements.rowsPerPage.addEventListener('change', function() {
+                    state.pagination.rowsPerPage = parseInt(this.value);
+                    state.pagination.currentPage = 1;
+                    renderResultsTable();
+                });
+                
+                elements.prevPage.addEventListener('click', function() {
+                    if (state.pagination.currentPage > 1) {
+                        state.pagination.currentPage--;
+                        renderResultsTable();
+                    }
+                });
+                
+                elements.nextPage.addEventListener('click', function() {
+                    if (state.pagination.currentPage < state.pagination.totalPages) {
+                        state.pagination.currentPage++;
+                        renderResultsTable();
+                    }
+                });
+            }
+            
+            // Initialize the application
+            function init() {
+                setupEventListeners();
+                fetchDatasetInfo();
+            }
+            
+            // Fetch dataset information
+            function fetchDatasetInfo() {
+                if (!state.sessionId) {
+                    alert('No dataset selected. Please upload a dataset first.');
+                    window.location.href = '/';
+                    return;
+                }
+                
+                // Fetch dataset info from the server
+                fetch(`/api/automl/dataset-info?session_id=${state.sessionId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        state.datasetInfo = data;
+                        elements.datasetName.textContent = data.filename;
+                        
+                        // Populate columns dropdown
+                        populateColumnsDropdown(data.columns_info);
+                        
+                        // Populate key column dropdown
+                        populateKeyColumnDropdown(data.columns_info);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching dataset info:', error);
+                        alert('Error loading dataset information. Please try again.');
+                    });
+            }
+            
+            // Populate columns dropdown
+            function populateColumnsDropdown(columns) {
+                state.columns = columns;
+                elements.columnOptions.innerHTML = '';
+                
+                columns.forEach(column => {
+                    const option = document.createElement('div');
+                    option.className = 'option';
+                    option.innerHTML = `
+                        <input type="checkbox" id="col-${column.name}" value="${column.name}">
+                        <label for="col-${column.name}">${column.name} <small class="text-muted">(${column.type})</small></label>
+                    `;
+                    
+                    const checkbox = option.querySelector('input[type="checkbox"]');
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            state.selectedColumns.push(column.name);
+                            addSelectedColumn(column.name);
+                        } else {
+                            state.selectedColumns = state.selectedColumns.filter(col => col !== column.name);
+                            removeSelectedColumn(column.name);
+                        }
+                    });
+                    
+                    elements.columnOptions.appendChild(option);
+                });
+            }
+            
+            // Populate key column dropdown
+            function populateKeyColumnDropdown(columns) {
+                elements.keyColumn.innerHTML = '<option value="">Select a key column...</option>';
+                
+                columns.forEach(column => {
+                    const option = document.createElement('option');
+                    option.value = column.name;
+                    option.textContent = `${column.name} (${column.type})`;
+                    elements.keyColumn.appendChild(option);
+                });
+            }
+            
+            // Add a selected column chip
+            function addSelectedColumn(columnName) {
+                const chip = document.createElement('div');
+                chip.className = 'selected-option';
+                chip.innerHTML = `
+                    ${columnName}
+                    <i class="bi bi-x-circle" data-column="${columnName}"></i>
+                `;
+                
+                chip.querySelector('i').addEventListener('click', function() {
+                    const column = this.getAttribute('data-column');
+                    state.selectedColumns = state.selectedColumns.filter(col => col !== column);
+                    removeSelectedColumn(column);
+                    
+                    // Uncheck the checkbox
+                    const checkbox = document.getElementById(`col-${column}`);
+                    if (checkbox) {
+                        checkbox.checked = false;
+                    }
+                });
+                
+                elements.selectedColumns.appendChild(chip);
+            }
+            
+            // Remove a selected column chip
+            function removeSelectedColumn(columnName) {
+                const chips = elements.selectedColumns.querySelectorAll('.selected-option');
+                chips.forEach(chip => {
+                    const removeButton = chip.querySelector('i');
+                    if (removeButton && removeButton.getAttribute('data-column') === columnName) {
+                        chip.remove();
+                    }
+                });
+            }
+            
+            // Validate the form before submission
+            function validateForm() {
+                if (state.selectedColumns.length === 0) {
+                    alert('Please select at least one column for analysis.');
+                    return false;
+                }
+                
+                if (!elements.keyColumn.value) {
+                    alert('Please select a key column.');
+                    return false;
+                }
+                
+                if (state.processingType === 'clustering' && 
+                    elements.numClusters.value === 'custom' && 
+                    (!elements.customClusters.value || elements.customClusters.value < 2)) {
+                    alert('Please enter a valid number of clusters (minimum 2).');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Start the analysis process
+            function startAnalysis() {
+                // Move to step 2
+                goToStep(2);
+                
+                // Collect all parameters
+                const params = {
+                    session_id: state.sessionId,
+                    processing_type: state.processingType,
+                    model: state.model,
+                    threshold: state.threshold,
+                    selected_columns: state.selectedColumns,
+                    key_column: elements.keyColumn.value,
+                    num_clusters: elements.numClusters.value === 'custom' 
+                        ? elements.customClusters.value 
+                        : elements.numClusters.value,
+                    preprocessing: {
+                        lowercase: elements.lowercase.checked,
+                        remove_punctuation: elements.removePunctuation.checked,
+                        remove_stopwords: elements.removeStopwords.checked
+                    },
+                    advanced_etl: elements.advancedEtl.checked,
+                    output_format: elements.outputFormat.value
+                };
+                
+                // Simulate the analysis process with a mock backend call
+                simulateAnalysisProcess(params);
+            }
+            
+            // Simulate the analysis process (for demo purposes)
+            function simulateAnalysisProcess(params) {
+                let progress = 0;
+                const totalSteps = 10;
+                let currentStep = 0;
+                
+                const steps = [
+                    { status: "Initializing analysis", detail: "Setting up processing environment", operation: "Initialization", opDetail: "Preparing data structures" },
+                    { status: "Loading dataset", detail: "Reading and parsing input data", operation: "Data Loading", opDetail: "Loading dataset into memory" },
+                    { status: "Preprocessing data", detail: "Cleaning and normalizing input", operation: "Preprocessing", opDetail: "Applying text normalization" },
+                    { status: "Computing embeddings", detail: "Generating vector representations", operation: "Embedding Generation", opDetail: "Using Azure OpenAI API" },
+                    { status: "Building similarity matrix", detail: "Calculating pairwise similarities", operation: "Similarity Calculation", opDetail: "Computing distance metrics" },
+                    { status: "Performing clustering", detail: "Grouping similar records", operation: "Clustering", opDetail: "Applying clustering algorithm" },
+                    { status: "Detecting matches", detail: "Identifying potential duplicates", operation: "Match Detection", opDetail: "Evaluating match candidates" },
+                    { status: "Generating insights", detail: "Analyzing patterns in data", operation: "Insight Generation", opDetail: "Querying LLM for patterns" },
+                    { status: "Creating visualizations", detail: "Preparing visual representations", operation: "Visualization", opDetail: "Generating charts and graphs" },
+                    { status: "Finalizing results", detail: "Compiling analysis results", operation: "Finalization", opDetail: "Preparing output dataset" }
+                ];
+                
+                // Simulate log entries
+                const addLogEntry = (message, type = 'info') => {
+                    const entry = document.createElement('div');
+                    entry.className = `log-entry ${type}`;
+                    const timestamp = new Date().toLocaleTimeString();
+                    entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+                    elements.processingLog.appendChild(entry);
+                    elements.processingLog.scrollTop = elements.processingLog.scrollHeight;
+                };
+                
+                // Initial log entries
+                addLogEntry('Starting embedded ML analysis process', 'info');
+                addLogEntry(`Processing type: ${params.processing_type}`, 'info');
+                addLogEntry(`Model: ${params.model}`, 'info');
+                addLogEntry(`Selected columns: ${params.selected_columns.join(', ')}`, 'info');
+                
+                // Update progress
+                const updateProgress = () => {
+                    progress = Math.min(100, Math.round((currentStep / totalSteps) * 100));
+                    elements.processingProgress.style.width = `${progress}%`;
+                    elements.progressText.textContent = `${progress}%`;
+                    
+                    if (currentStep < totalSteps) {
+                        const step = steps[currentStep];
+                        elements.processingStatus.innerHTML = `${step.status}<span class="loading-dots"></span>`;
+                        elements.processingDetail.textContent = step.detail;
+                        elements.currentOperation.textContent = step.operation;
+                        elements.operationDetail.textContent = step.opDetail;
+                        
+                        // Add log entry
+                        addLogEntry(`${step.status}: ${step.detail}`, 'info');
+                        
+                        // Update time remaining
+                        const remainingSteps = totalSteps - currentStep;
+                        const timePerStep = 1.5; // seconds per step (average)
+                        const remainingTime = Math.round(remainingSteps * timePerStep);
+                        elements.timeRemaining.textContent = `Approximately ${remainingTime} seconds`;
+                        
+                        currentStep++;
+                        
+                        // Add some random detailed logs
+                        if (Math.random() > 0.7) {
+                            const detailMessages = [
+                                "Optimizing memory usage for large dataset",
+                                "Applying stopword removal to text columns",
+                                "Computing cosine similarities between vectors",
+                                "Detecting potential match candidates",
+                                "Merging cluster assignments",
+                                "Generating embedding vectors using Azure OpenAI",
+                                "Calculating Silhouette score for cluster quality",
+                                "Identifying outliers in the dataset",
+                                "Normalizing numeric features for better comparison"
+                            ];
+                            
+                            const randomDetail = detailMessages[Math.floor(Math.random() * detailMessages.length)];
+                            addLogEntry(`└─ ${randomDetail}`, 'detail');
+                        }
+                        
+                        // Simulate occasional warnings
+                        if (Math.random() > 0.85) {
+                            const warnings = [
+                                "Missing values detected in some records",
+                                "High dimensionality may affect performance",
+                                "Some records have unusually short text",
+                                "Consider increasing similarity threshold for better precision"
+                            ];
+                            
+                            const randomWarning = warnings[Math.floor(Math.random() * warnings.length)];
+                            addLogEntry(`Warning: ${randomWarning}`, 'warning');
+                        }
+                        
+                        setTimeout(updateProgress, 1500); // Update every 1.5 seconds
+                    } else {
+                        // Complete the process
+                        addLogEntry('Analysis completed successfully!', 'success');
+                        elements.processingStatus.textContent = 'Analysis complete!';
+                        elements.processingDetail.textContent = 'Your data has been processed successfully';
+                        elements.currentOperation.textContent = 'Completed';
+                        elements.operationDetail.textContent = 'All operations finished successfully';
+                        elements.timeRemaining.textContent = 'Finished';
+                        
+                        // Generate mock results
+                        generateMockResults(params);
+                        
+                        // Move to step 3 after a short delay
+                        setTimeout(() => {
+                            goToStep(3);
+                            renderResults();
+                        }, 1000);
+                    }
+                };
+                
+                // Start the progress updates
+                setTimeout(updateProgress, 1000);
+            }
+            
+            // Generate mock results for demo purposes
+            function generateMockResults(params) {
+                const totalRecords = state.datasetInfo.rows;
+                const matchCount = Math.floor(totalRecords * 0.15); // About 15% of records have matches
+                const clusterCount = params.processing_type === 'clustering' 
+                    ? (params.num_clusters === 'auto' ? Math.floor(Math.random() * 5) + 3 : parseInt(params.num_clusters))
+                    : Math.floor(Math.random() * 5) + 3;
+                const avgSimilarity = (Math.random() * 0.3 + 0.65).toFixed(2); // Between 65% and 95%
+                
+                // Generate cluster distribution data
+                const clusterDistribution = [];
+                let remainingRecords = totalRecords;
+                
+                for (let i = 0; i < clusterCount - 1; i++) {
+                    const size = Math.floor(Math.random() * (remainingRecords / 2)) + 1;
+                    clusterDistribution.push(size);
+                    remainingRecords -= size;
+                }
+                
+                clusterDistribution.push(remainingRecords); // Add remaining records to last cluster
+                
+                // Generate similarity distribution
+                const similarityDistribution = [
+                    Math.floor(matchCount * 0.1),  // 0.5-0.6
+                    Math.floor(matchCount * 0.2),  // 0.6-0.7
+                    Math.floor(matchCount * 0.3),  // 0.7-0.8
+                    Math.floor(matchCount * 0.25), // 0.8-0.9
+                    Math.floor(matchCount * 0.15)  // 0.9-1.0
+                ];
+                
+                // Generate AI insights
+                const aiInsights = [
+                    {
+                        title: "Pattern Detection",
+                        content: "The analysis has identified recurring patterns in your data that suggest systematic variations in how information is recorded. These patterns could be normalized to improve data quality."
+                    },
+                    {
+                        title: "Cluster Characteristics",
+                        content: `The ${clusterCount} identified clusters show distinct characteristics. Cluster 1 appears to represent newer records with more complete information, while Cluster 2 contains older records with more missing values.`
+                    },
+                    {
+                        title: "Duplicate Detection",
+                        content: `Approximately ${(matchCount / totalRecords * 100).toFixed(1)}% of your records have potential duplicates. Most duplicates have minor variations in text fields, suggesting manual entry errors.`
+                    },
+                    {
+                        title: "Data Quality Issues",
+                        content: "Several records contain inconsistent formatting in key fields. Standardizing these formats could significantly improve match detection rates in future analyses."
+                    }
+                ];
+                
+                // Generate recommended transformations
+                const transformations = [
+                    {
+                        title: "Standardize Text Case",
+                        description: "Convert all text fields to consistent case (lowercase recommended)",
+                        impact: "Medium",
+                        type: "text_standardization"
+                    },
+                    {
+                        title: "Remove Special Characters",
+                        description: "Clean text fields by removing non-alphanumeric characters",
+                        impact: "High",
+                        type: "text_cleaning"
+                    },
+                    {
+                        title: "Merge Duplicate Records",
+                        description: "Combine records with similarity scores above 0.85",
+                        impact: "High",
+                        type: "record_merging"
+                    },
+                    {
+                        title: "Create Cluster Labels",
+                        description: "Add a new column with descriptive cluster labels",
+                        impact: "Medium",
+                        type: "feature_creation"
+                    }
+                ];
+                
+                // Generate pattern insights
+                const patterns = [
+                    {
+                        pattern: "Abbreviated vs. Full Names",
+                        examples: "Acme Corp vs. Acme Corporation, J. Smith vs. John Smith",
+                        frequency: "High"
+                    },
+                    {
+                        pattern: "Typos in Common Fields",
+                        examples: "Transposed characters, missing letters",
+                        frequency: "Medium"
+                    },
+                    {
+                        pattern: "Inconsistent Formatting",
+                        examples: "Phone numbers, dates, addresses",
+                        frequency: "High"
+                    },
+                    {
+                        pattern: "Multiple Representations",
+                        examples: "Different ways to represent the same entity",
+                        frequency: "Medium"
+                    }
+                ];
+                
+                // Generate quality metrics
+                const qualityMetrics = {
+                    completeness: Math.random() * 30 + 70, // 70-100%
+                    consistency: Math.random() * 40 + 60,  // 60-100%
+                    accuracy: Math.random() * 20 + 80,     // 80-100%
+                    uniqueness: Math.random() * 25 + 70    // 70-95%
+                };
+                
+                // Store the mock results
+                state.results = {
+                    totalRecords: totalRecords,
+                    matchCount: matchCount,
+                    clusterCount: clusterCount,
+                    avgSimilarity: avgSimilarity,
+                    clusterDistribution: clusterDistribution,
+                    similarityDistribution: similarityDistribution,
+                    aiInsights: aiInsights,
+                    transformations: transformations,
+                    patterns: patterns,
+                    qualityMetrics: qualityMetrics,
+                    processingType: params.processing_type,
+                    selectedColumns: params.selected_columns,
+                    keyColumn: params.key_column
+                };
+            }
+            
+            // Render results
+            function renderResults() {
+                if (!state.results) return;
+                
+                // Update metrics
+                elements.totalRecords.textContent = state.results.totalRecords.toLocaleString();
+                elements.matchesFound.textContent = state.results.matchCount.toLocaleString();
+                elements.clustersFound.textContent = state.results.clusterCount;
+                elements.similarityScore.textContent = `${Math.round(state.results.avgSimilarity * 100)}%`;
+                
+                // Render analysis summary
+                renderAnalysisSummary();
+                
+                // Render suggested actions
+                renderSuggestedActions();
+                
+                // Render visualizations
+                renderVisualizations();
+                
+                // Render results table
+                renderResultsTable();
+                
+                // Render AI insights
+                renderAiInsights();
+                
+                // Render transformations
+                renderTransformations();
+                
+                // Render patterns
+                renderPatterns();
+                
+                // Render quality chart
+                renderQualityChart();
+            }
+            
+            // Render analysis summary
+            function renderAnalysisSummary() {
+                const summary = `
+                    <p>Your data has been analyzed using ${state.results.processingType === 'matching' ? 'data matching' : 'clustering'} 
+                    techniques. We identified ${state.results.matchCount.toLocaleString()} potential matches across 
+                    ${state.results.totalRecords.toLocaleString()} records, with an average similarity score of 
+                    ${Math.round(state.results.avgSimilarity * 100)}%.</p>
+                    
+                    <p>The analysis focused on these columns: <strong>${state.results.selectedColumns.join(', ')}</strong>.</p>
+                    
+                    ${state.results.processingType === 'clustering' ? 
+                        `<p>Your data was organized into ${state.results.clusterCount} distinct clusters, 
+                        with the largest cluster containing ${Math.max(...state.results.clusterDistribution).toLocaleString()} records.</p>` : ''}
+                    
+                    <p>We've identified several patterns and potential transformations that could improve your data quality.
+                    Review the AI Insights tab for detailed recommendations.</p>
+                `;
+                
+                elements.analysisSummary.innerHTML = summary;
+            }
+            
+            // Render suggested actions
+            function renderSuggestedActions() {
+                const actions = [
+                    {
+                        title: "Review Matched Records",
+                        description: "Examine potential matches to confirm accuracy",
+                        icon: "bi-search"
+                    },
+                    {
+                        title: "Export Enhanced Dataset",
+                        description: "Download data with match/cluster information",
+                        icon: "bi-download"
+                    },
+                    {
+                        title: "Apply Transformations",
+                        description: "Implement suggested data improvements",
+                        icon: "bi-magic"
+                    },
+                    {
+                        title: "Refine Parameters",
+                        description: "Adjust settings and run analysis again",
+                        icon: "bi-sliders"
+                    }
+                ];
+                
+                elements.suggestedActions.innerHTML = '';
+                
+                actions.forEach(action => {
+                    const actionItem = document.createElement('li');
+                    actionItem.className = 'list-group-item d-flex align-items-center border-0 py-3';
+                    actionItem.innerHTML = `
+                        <div class="me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(51, 102, 255, 0.1); color: var(--primary-color); border-radius: 12px;">
+                            <i class="bi ${action.icon}" style="font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">${action.title}</h6>
+                            <small class="text-muted">${action.description}</small>
+                        </div>
+                    `;
+                    elements.suggestedActions.appendChild(actionItem);
+                });
+            }
+            
+            // Render visualizations
+            function renderVisualizations() {
+                // Render cluster chart
+                renderClusterChart();
+                
+                // Render similarity chart
+                renderSimilarityChart();
+                
+                // Render cluster view (default)
+                renderClusterView();
+            }
+            
+            // Render cluster chart
+            function renderClusterChart() {
+                const ctx = elements.clusterChart.getContext('2d');
+                
+                // Create labels for clusters
+                const labels = Array.from({ length: state.results.clusterCount }, (_, i) => `Cluster ${i + 1}`);
+                
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Records',
+                            data: state.results.clusterDistribution,
+                            backgroundColor: 'rgba(51, 102, 255, 0.7)',
+                            borderColor: 'rgba(51, 102, 255, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Records per Cluster'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Records'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Render similarity chart
+            function renderSimilarityChart() {
+                const ctx = elements.similarityChart.getContext('2d');
+                
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['0.5-0.6', '0.6-0.7', '0.7-0.8', '0.8-0.9', '0.9-1.0'],
+                        datasets: [{
+                            label: 'Number of Matches',
+                            data: state.results.similarityDistribution,
+                            backgroundColor: [
+                                'rgba(255, 159, 64, 0.7)',
+                                'rgba(255, 205, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(153, 102, 255, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgb(255, 159, 64)',
+                                'rgb(255, 205, 86)',
+                                'rgb(75, 192, 192)',
+                                'rgb(54, 162, 235)',
+                                'rgb(153, 102, 255)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Similarity Score Distribution'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Matches'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Similarity Score Range'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Render cluster view visualization
+            function renderClusterView() {
+                // This would normally use D3.js to create a complex visualization
+                // For demo purposes, we'll create a simple placeholder
+                elements.visualizationContainer.innerHTML = `
+                    <div style="height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                        <svg width="400" height="400" viewBox="0 0 400 400">
+                            <!-- Cluster circles -->
+                            <circle cx="200" cy="200" r="180" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" />
+                            <circle cx="200" cy="200" r="140" fill="#f1f3f5" stroke="#e9ecef" stroke-width="1" />
+                            <circle cx="200" cy="200" r="100" fill="#e9ecef" stroke="#e9ecef" stroke-width="1" />
+                            
+                            <!-- Cluster 1 -->
+                            <circle cx="150" cy="150" r="40" fill="rgba(51, 102, 255, 0.7)" />
+                            <text x="150" y="155" text-anchor="middle" fill="white" font-weight="bold">C1</text>
+                            
+                            <!-- Cluster 2 -->
+                            <circle cx="250" cy="170" r="30" fill="rgba(99, 102, 241, 0.7)" />
+                            <text x="250" y="175" text-anchor="middle" fill="white" font-weight="bold">C2</text>
+                            
+                            <!-- Cluster 3 -->
+                            <circle cx="180" cy="250" r="35" fill="rgba(139, 92, 246, 0.7)" />
+                            <text x="180" y="255" text-anchor="middle" fill="white" font-weight="bold">C3</text>
+                            
+                            <!-- Cluster 4 -->
+                            <circle cx="120" cy="220" r="25" fill="rgba(168, 85, 247, 0.7)" />
+                            <text x="120" y="225" text-anchor="middle" fill="white" font-weight="bold">C4</text>
+                            
+                            <!-- Cluster 5 -->
+                            <circle cx="270" cy="230" r="28" fill="rgba(217, 70, 239, 0.7)" />
+                            <text x="270" y="235" text-anchor="middle" fill="white" font-weight="bold">C5</text>
+                            
+                            <!-- Points representing data -->
+                            ${Array.from({ length: 100 }, () => {
+                                const cluster = Math.floor(Math.random() * state.results.clusterCount);
+                                const angle = Math.random() * Math.PI * 2;
+                                const distance = Math.random() * 30 + 40;
+                                let cx, cy;
+                                
+                                switch(cluster) {
+                                    case 0:
+                                        cx = 150 + Math.cos(angle) * distance;
+                                        cy = 150 + Math.sin(angle) * distance;
+                                        break;
+                                    case 1:
+                                        cx = 250 + Math.cos(angle) * distance;
+                                        cy = 170 + Math.sin(angle) * distance;
+                                        break;
+                                    case 2:
+                                        cx = 180 + Math.cos(angle) * distance;
+                                        cy = 250 + Math.sin(angle) * distance;
+                                        break;
+                                    case 3:
+                                        cx = 120 + Math.cos(angle) * distance;
+                                        cy = 220 + Math.sin(angle) * distance;
+                                        break;
+                                    default:
+                                        cx = 270 + Math.cos(angle) * distance;
+                                        cy = 230 + Math.sin(angle) * distance;
+                                }
+                                
+                                return `<circle cx="${cx}" cy="${cy}" r="3" fill="rgba(0,0,0,0.5)" />`;
+                            }).join('')}
+                        </svg>
+                        <p class="text-muted mt-3">Interactive visualization simulated for demo purposes.</p>
+                    </div>
+                `;
+            }
+            
+            // Render network view visualization
+            function renderNetworkView() {
+                // This would normally use D3.js to create a complex network visualization
+                // For demo purposes, we'll create a simple placeholder
+                elements.visualizationContainer.innerHTML = `
+                    <div style="height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                        <svg width="400" height="400" viewBox="0 0 400 400">
+                            <!-- Network nodes and links -->
+                            ${Array.from({ length: 20 }, (_, i) => {
+                                const x = 50 + Math.random() * 300;
+                                const y = 50 + Math.random() * 300;
+                                const size = Math.random() * 10 + 5;
+                                return `<circle cx="${x}" cy="${y}" r="${size}" fill="rgba(51, 102, 255, 0.7)" stroke="white" stroke-width="1" />`;
+                            }).join('')}
+                            
+                            <!-- Network links -->
+                            ${Array.from({ length: 30 }, () => {
+                                const x1 = 50 + Math.random() * 300;
+                                const y1 = 50 + Math.random() * 300;
+                                const x2 = 50 + Math.random() * 300;
+                                const y2 = 50 + Math.random() * 300;
+                                const opacity = Math.random() * 0.5 + 0.1;
+                                return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(51, 102, 255, ${opacity})" stroke-width="1" />`;
+                            }).join('')}
+                        </svg>
+                        <p class="text-muted mt-3">Interactive network visualization simulated for demo purposes.</p>
+                    </div>
+                `;
+            }
+            
+            // Render results table
+            function renderResultsTable() {
+                // Generate mock result data
+                const mockColumns = [...state.results.selectedColumns];
+                
+                // Add result columns
+                if (state.results.processingType === 'matching') {
+                    mockColumns.push('match_id', 'similarity_score');
+                } else {
+                    mockColumns.push('cluster_id', 'cluster_name');
+                }
+                
+                // Set up table header
+                elements.resultTableHeader.innerHTML = '';
+                mockColumns.forEach(col => {
+                    const th = document.createElement('th');
+                    th.textContent = col;
+                    elements.resultTableHeader.appendChild(th);
+                });
+                
+                // Generate mock data rows
+                const rowsPerPage = state.pagination.rowsPerPage;
+                const mockData = generateMockResultData(mockColumns, 100); // Generate 100 rows for pagination demo
+                
+                // Calculate pagination
+                state.pagination.totalPages = Math.ceil(mockData.length / rowsPerPage);
+                const startIdx = (state.pagination.currentPage - 1) * rowsPerPage;
+                const endIdx = Math.min(startIdx + rowsPerPage, mockData.length);
+                const currentPageData = mockData.slice(startIdx, endIdx);
+                
+                // Update pagination info
+                elements.paginationInfo.textContent = `Page ${state.pagination.currentPage} of ${state.pagination.totalPages}`;
+                
+                // Render table rows
+                elements.resultTableBody.innerHTML = '';
+                currentPageData.forEach(row => {
+                    const tr = document.createElement('tr');
+                    
+                    // Add class for matches if applicable
+                    if (state.results.processingType === 'matching' && row.match_id) {
+                        tr.classList.add('match-highlight');
+                    }
+                    
+                    mockColumns.forEach(col => {
+                        const td = document.createElement('td');
+                        td.textContent = row[col] !== undefined ? row[col] : '';
+                        tr.appendChild(td);
+                    });
+                    
+                    elements.resultTableBody.appendChild(tr);
+                });
+            }
+            
+            // Generate mock result data
+            function generateMockResultData(columns, numRows) {
+                const data = [];
+                
+                // Sample data for different column types
+                const sampleData = {
+                    first_name: ['John', 'Jane', 'Michael', 'Sarah', 'David', 'Lisa', 'Robert', 'Mary', 'William', 'Elizabeth'],
+                    last_name: ['Smith', 'Johnson', 'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor'],
+                    email: ['email@example.com', 'user@company.com', 'name@domain.org', 'contact@business.net', 'info@website.com'],
+                    phone: ['123-456-7890', '555-123-4567', '987-654-3210', '456-789-0123', '789-012-3456'],
+                    address: ['123 Main St', '456 Oak Ave', '789 Pine Rd', '321 Elm Blvd', '654 Maple Dr'],
+                    city: ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego'],
+                    state: ['NY', 'CA', 'IL', 'TX', 'AZ', 'PA', 'FL', 'OH', 'GA', 'NC'],
+                    zip: ['10001', '90001', '60601', '77001', '85001', '19101', '32801', '43201'],
+                    product: ['Product A', 'Product B', 'Product C', 'Product D', 'Product E'],
+                    category: ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5'],
+                    price: ['19.99', '29.99', '39.99', '49.99', '59.99'],
+                    quantity: ['1', '2', '3', '4', '5'],
+                    company: ['Acme Inc', 'Global Corp', 'Tech Solutions', 'Innovative Systems', 'Premium Services']
+                };
+                
+                // Generate match IDs or cluster IDs
+                const totalMatches = Math.floor(numRows * 0.3); // 30% of rows have matches
+                const matchMap = new Map();
+                let currentMatchId = 1;
+                
+                for (let i = 0; i < totalMatches; i++) {
+                    const recordIdx = Math.floor(Math.random() * numRows);
+                    const matchIdx = Math.floor(Math.random() * numRows);
+                    
+                    if (recordIdx !== matchIdx) {
+                        matchMap.set(recordIdx, currentMatchId);
+                        matchMap.set(matchIdx, currentMatchId);
+                        currentMatchId++;
+                    }
+                }
+                
+                // Generate rows
+                for (let i = 0; i < numRows; i++) {
+                    const row = {};
+                    
+                    // Generate values for each column
+                    columns.forEach(col => {
+                        if (col === 'match_id') {
+                            row[col] = matchMap.has(i) ? `M${matchMap.get(i)}` : '';
+                        } else if (col === 'similarity_score') {
+                            row[col] = matchMap.has(i) ? (Math.random() * 0.3 + 0.7).toFixed(2) : '';
+                        } else if (col === 'cluster_id') {
+                            row[col] = `C${Math.floor(Math.random() * state.results.clusterCount) + 1}`;
+                        } else if (col === 'cluster_name') {
+                            const clusterId = parseInt(row['cluster_id']?.substring(1)) || 1;
+                            const clusterNames = ['High Value', 'Medium Value', 'Low Value', 'Premium', 'Standard'];
+                            row[col] = clusterId <= clusterNames.length ? clusterNames[clusterId - 1] : `Cluster ${clusterId}`;
+                        } else if (sampleData[col]) {
+                            // Use sample data if available for this column
+                            const sampleArray = sampleData[col];
+                            row[col] = sampleArray[Math.floor(Math.random() * sampleArray.length)];
+                        } else {
+                            // Generate a random value based on column name
+                            if (col.includes('id')) {
+                                row[col] = (1000 + i).toString();
+                            } else if (col.includes('name')) {
+                                row[col] = `Name ${i + 1}`;
+                            } else if (col.includes('date')) {
+                                const date = new Date();
+                                date.setDate(date.getDate() - Math.floor(Math.random() * 365));
+                                row[col] = date.toISOString().split('T')[0];
+                            } else if (col.includes('amount') || col.includes('price')) {
+                                row[col] = (Math.random() * 1000).toFixed(2);
+                            } else if (col.includes('count') || col.includes('quantity')) {
+                                row[col] = Math.floor(Math.random() * 100).toString();
+                            } else {
+                                row[col] = `Value ${i + 1}`;
+                            }
+                        }
+                    });
+                    
+                    data.push(row);
+                }
+                
+                return data;
+            }
+            
+            // Render AI insights
+            function renderAiInsights() {
+                elements.aiInsights.innerHTML = '';
+                
+                state.results.aiInsights.forEach(insight => {
+                    const insightElement = document.createElement('div');
+                    insightElement.className = 'mb-4';
+                    insightElement.innerHTML = `
+                        <h5 class="insight-title">
+                            <i class="bi bi-lightbulb me-2" style="color: var(--primary-color);"></i>
+                            ${insight.title}
+                        </h5>
+                        <p>${insight.content}</p>
+                    `;
+                    elements.aiInsights.appendChild(insightElement);
+                });
+            }
+            
+            // Render transformations
+            function renderTransformations() {
+                elements.transformationsContainer.innerHTML = '';
+                
+                state.results.transformations.forEach(transform => {
+                    let impactClass;
+                    switch (transform.impact.toLowerCase()) {
+                        case 'high':
+                            impactClass = 'success';
+                            break;
+                        case 'medium':
+                            impactClass = 'warning';
+                            break;
+                        default:
+                            impactClass = 'info';
+                    }
+                    
+                    const transformCard = document.createElement('div');
+                    transformCard.className = 'card mb-3';
+                    transformCard.innerHTML = `
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">${transform.title}</h5>
+                                <span class="badge bg-${impactClass}">${transform.impact} Impact</span>
+                            </div>
+                            <p class="text-muted mb-3">${transform.description}</p>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="transform-${transform.type}" checked>
+                                <label class="form-check-label" for="transform-${transform.type}">
+                                    Apply this transformation
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                    elements.transformationsContainer.appendChild(transformCard);
+                });
+            }
+            
+            // Render patterns
+            function renderPatterns() {
+                elements.patternsList.innerHTML = '';
+                
+                state.results.patterns.forEach(pattern => {
+                    const patternItem = document.createElement('div');
+                    patternItem.className = 'mb-3 pb-3 border-bottom';
+                    patternItem.innerHTML = `
+                        <h6 class="mb-2">
+                            <i class="bi bi-stars me-2" style="color: var(--primary-color);"></i>
+                            ${pattern.pattern}
+                        </h6>
+                        <p class="small text-muted mb-1"><strong>Examples:</strong> ${pattern.examples}</p>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">Frequency:</span>
+                            <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress-bar" style="width: ${pattern.frequency === 'High' ? '80%' : pattern.frequency === 'Medium' ? '50%' : '30%'};"></div>
+                            </div>
+                            <span class="ms-2">${pattern.frequency}</span>
+                        </div>
+                    `;
+                    elements.patternsList.appendChild(patternItem);
+                });
+            }
+            
+            // Render quality chart
+            function renderQualityChart() {
+                const ctx = elements.qualityChart.getContext('2d');
+                
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Completeness', 'Consistency', 'Accuracy', 'Uniqueness'],
+                        datasets: [{
+                            label: 'Data Quality Metrics',
+                            data: [
+                                state.results.qualityMetrics.completeness,
+                                state.results.qualityMetrics.consistency,
+                                state.results.qualityMetrics.accuracy,
+                                state.results.qualityMetrics.uniqueness
+                            ],
+                            backgroundColor: 'rgba(51, 102, 255, 0.2)',
+                            borderColor: 'rgba(51, 102, 255, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(51, 102, 255, 1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    display: true
+                                },
+                                suggestedMin: 0,
+                                suggestedMax: 100
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Cancel the analysis
+            function cancelAnalysis() {
+                // In a real application, you would send a request to cancel the background job
+                resetToStep1();
+            }
+            
+            // Reset to step 1
+            function resetToStep1() {
+                goToStep(1);
+                
+                // Reset progress
+                elements.processingProgress.style.width = '0%';
+                elements.progressText.textContent = '0%';
+                elements.processingLog.innerHTML = '';
+            }
+            
+            // Download results
+            function downloadResults() {
+                // In a real application, you would send a request to generate a downloadable file
+                alert('Downloading processed data. This would typically download a CSV or Excel file.');
+            }
+            
+            // Apply transformations
+            function applyTransformations() {
+                // In a real application, you would send a request to apply the selected transformations
+                alert('Transformations applied successfully. Your dataset has been updated.');
+            }
+            
+            // Navigation between steps
+            function goToStep(stepNumber) {
+                // Update step indicators
+                document.querySelectorAll('.step').forEach((step, index) => {
+                    if (index + 1 < stepNumber) {
+                        step.classList.remove('active');
+                        step.classList.add('completed');
+                    } else if (index + 1 === stepNumber) {
+                        step.classList.add('active');
+                        step.classList.remove('completed');
+                    } else {
+                        step.classList.remove('active', 'completed');
+                    }
+                });
+                
+                // Hide all step content
+                document.querySelectorAll('.step-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // Show current step content
+                document.getElementById(`step${stepNumber}-content`).style.display = 'block';
+            }
+            
+            // Initialize the application
+            init();
+        });
+    </script>
+</body>
+</html>

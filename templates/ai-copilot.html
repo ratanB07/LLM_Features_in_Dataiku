@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Copilot for Data Exploration & Prep - Dataiku</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Card Styles */
+        .card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 2rem;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(51, 102, 255, 0.15);
+        }
+        
+        .card-header {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 1.5rem;
+            border: none;
+        }
+        
+        .card-header h3 {
+            margin: 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-header i {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        /* Form Styles */
+        .form-control, .form-select {
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(51, 102, 255, 0.25);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Button Styles */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 10px 22px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        /* Column Selection */
+        .column-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .column-item {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .column-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(51, 102, 255, 0.1);
+        }
+        
+        .column-item.selected {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+        
+        .column-info {
+            font-size: 0.9rem;
+            color: #64748B;
+            margin-top: 0.5rem;
+        }
+        
+        .column-type {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .quality-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .quality-good {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .quality-fair {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .quality-poor {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        
+        /* Operation Types */
+        .operation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .operation-card {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .operation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .operation-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .operation-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(51, 102, 255, 0.15);
+        }
+        
+        .operation-card.selected {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+        
+        .operation-icon {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        
+        .operation-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .operation-description {
+            color: #64748B;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Results Section */
+        .results-section {
+            margin-top: 2rem;
+        }
+        
+        .insight-card {
+            background: white;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 0 12px 12px 0;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .insight-title {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .insight-description {
+            color: #64748B;
+            line-height: 1.6;
+        }
+        
+        .visualization-container {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .visualization-title {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+        
+        .visualization-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+            width: 4rem;
+            height: 4rem;
+            border-width: 0.3em;
+        }
+        
+        /* Data Table */
+        .data-table-container {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .table {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+        
+        .table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tbody td {
+            padding: 0.75rem 1rem;
+            border-color: #E2E8F0;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(51, 102, 255, 0.02);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(51, 102, 255, 0.05);
+        }
+        
+        /* ETL Information */
+        .etl-info {
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            border: 1px solid #0EA5E9;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .etl-title {
+            color: #0C4A6E;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .etl-title i {
+            margin-right: 0.5rem;
+            font-size: 1.8rem;
+        }
+        
+        .etl-content {
+            color: #0C4A6E;
+            line-height: 1.7;
+        }
+        
+        .etl-benefits {
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+        }
+        
+        .etl-benefits li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .etl-benefits li::before {
+            content: '✓';
+            color: #059669;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .column-selection {
+                grid-template-columns: 1fr;
+            }
+            
+            .operation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #CBD5E1 0%, #94A3B8 100%);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #94A3B8 0%, #64748B 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1><i class="bi bi-compass me-3"></i>AI Copilot for Data Exploration & Prep</h1>
+            <p>Your intelligent assistant for data exploration, cleaning, and preparation using advanced LLMs</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Dataset Information Card -->
+        <div class="card fade-in-up">
+            <div class="card-header">
+                <h3><i class="bi bi-database"></i>Dataset Information</h3>
+            </div>
+            <div class="card-body">
+                <div id="dataset-info-loading" class="text-center py-4">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading dataset information...</p>
+                </div>
+                <div id="dataset-info-content" style="display: none;">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-primary" id="dataset-rows">0</h4>
+                                <small class="text-muted">Rows</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-primary" id="dataset-columns">0</h4>
+                                <small class="text-muted">Columns</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-center">
+                                <h5 class="text-dark" id="dataset-filename">Dataset</h5>
+                                <small class="text-muted">Filename</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column Selection Card -->
+        <div class="card fade-in-up">
+            <div class="card-header">
+                <h3><i class="bi bi-check2-square"></i>Select Columns for Analysis</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">Choose the columns you want to analyze with the AI Copilot. Click on columns to select/deselect them.</p>
+                <div id="column-selection" class="column-selection">
+                    <!-- Columns will be dynamically loaded here -->
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-outline-primary" id="select-all-btn">Select All</button>
+                    <button class="btn btn-outline-secondary ms-2" id="clear-selection-btn">Clear Selection</button>
+                    <span class="ms-3 text-muted">Selected: <span id="selected-count">0</span> columns</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operation Selection Card -->
+        <div class="card fade-in-up">
+            <div class="card-header">
+                <h3><i class="bi bi-gear"></i>Choose Analysis Operation</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">Select the type of analysis you want to perform on your selected columns.</p>
+                <div class="operation-grid">
+                    <div class="operation-card" data-operation="data_cleaning">
+                        <div class="operation-icon">
+                            <i class="bi bi-brush"></i>
+                        </div>
+                        <div class="operation-title">Data Cleaning</div>
+                        <div class="operation-description">Automatically clean your data by handling missing values, removing duplicates, and standardizing formats.</div>
+                    </div>
+                    <div class="operation-card" data-operation="outlier_detection">
+                        <div class="operation-icon">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <div class="operation-title">Outlier Detection</div>
+                        <div class="operation-description">Identify and analyze outliers in your data using statistical methods and visualizations.</div>
+                    </div>
+                    <div class="operation-card" data-operation="missing_value_analysis">
+                        <div class="operation-icon">
+                            <i class="bi bi-question-circle"></i>
+                        </div>
+                        <div class="operation-title">Missing Value Analysis</div>
+                        <div class="operation-description">Comprehensive analysis of missing value patterns and recommendations for handling them.</div>
+                    </div>
+                    <div class="operation-card" data-operation="correlation_analysis">
+                        <div class="operation-icon">
+                            <i class="bi bi-diagram-2"></i>
+                        </div>
+                        <div class="operation-title">Correlation Analysis</div>
+                        <div class="operation-description">Discover relationships between variables with correlation matrices and insights.</div>
+                    </div>
+                    <div class="operation-card" data-operation="distribution_analysis">
+                        <div class="operation-icon">
+                            <i class="bi bi-bar-chart"></i>
+                        </div>
+                        <div class="operation-title">Distribution Analysis</div>
+                        <div class="operation-description">Analyze data distributions, skewness, and statistical properties of your variables.</div>
+                    </div>
+                    <div class="operation-card" data-operation="feature_importance">
+                        <div class="operation-icon">
+                            <i class="bi bi-star"></i>
+                        </div>
+                        <div class="operation-title">Feature Importance</div>
+                        <div class="operation-description">Identify the most important features in your dataset for predictive modeling.</div>
+                    </div>
+                    <div class="operation-card" data-operation="data_transformation">
+                        <div class="operation-icon">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                        <div class="operation-title">Data Transformation</div>
+                        <div class="operation-description">Apply intelligent transformations like scaling, encoding, and normalization.</div>
+                    </div>
+                    <div class="operation-card" data-operation="custom_analysis">
+                        <div class="operation-icon">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                        <div class="operation-title">Custom Analysis</div>
+                        <div class="operation-description">Describe your specific analysis needs and let AI provide customized insights.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Card -->
+        <div class="card fade-in-up">
+            <div class="card-header">
+                <h3><i class="bi bi-sliders"></i>Analysis Configuration</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="model-select" class="form-label">AI Model</label>
+                            <select class="form-select" id="model-select">
+                                <option value="gpt-4o">GPT-4o (Recommended)</option>
+                                <option value="gpt-4">GPT-4</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="operation-type" class="form-label">Selected Operation</label>
+                            <input type="text" class="form-control" id="operation-type" readonly placeholder="Select an operation above">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3" id="custom-instruction-container" style="display: none;">
+                    <label for="custom-instruction" class="form-label">Custom Analysis Instructions</label>
+                    <textarea class="form-control" id="custom-instruction" rows="3" placeholder="Describe what specific analysis you want to perform..."></textarea>
+                </div>
+                <div class="d-flex gap-3">
+                    <button class="btn btn-primary" id="start-analysis-btn" disabled>
+                        <i class="bi bi-play-circle me-2"></i>Start Analysis
+                    </button>
+                    <button class="btn btn-outline-secondary" id="reset-btn">
+                        <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Section -->
+        <div class="loading-spinner" id="analysis-loading">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Analyzing...</span>
+            </div>
+            <h4 class="mt-4">AI Copilot is analyzing your data...</h4>
+            <p class="text-muted">This may take a few moments depending on the complexity of your analysis.</p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="results-section" style="display: none;">
+            <!-- AI Insights -->
+            <div class="card fade-in-up">
+                <div class="card-header">
+                    <h3><i class="bi bi-lightbulb"></i>AI Insights & Recommendations</h3>
+                </div>
+                <div class="card-body">
+                    <div id="insights-container">
+                        <!-- Insights will be dynamically loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizations -->
+            <div class="card fade-in-up" id="visualizations-card" style="display: none;">
+                <div class="card-header">
+                    <h3><i class="bi bi-graph-up"></i>Data Visualizations</h3>
+                </div>
+                <div class="card-body">
+                    <div id="visualizations-container">
+                        <!-- Visualizations will be dynamically loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Changes Summary -->
+            <div class="card fade-in-up" id="changes-card" style="display: none;">
+                <div class="card-header">
+                    <h3><i class="bi bi-list-check"></i>Data Changes Summary</h3>
+                </div>
+                <div class="card-body">
+                    <div id="changes-container">
+                        <!-- Changes will be dynamically loaded here -->
+                    </div>
+                    <div class="mt-3">
+                        <button class="btn btn-success" id="download-btn" disabled>
+                            <i class="bi bi-download me-2"></i>Download Modified Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ETL Information Section -->
+        <div class="etl-info fade-in-up">
+            <div class="etl-title">
+                <i class="bi bi-info-circle"></i>
+                Why Use AI Copilot in ETL Processes?
+            </div>
+            <div class="etl-content">
+                <p>The AI Copilot for Data Exploration & Prep is a powerful tool that enhances your ETL (Extract, Transform, Load) workflows by providing intelligent automation and insights.</p>
+                
+                <h5 class="mt-4 mb-3">Key Benefits in ETL:</h5>
+                <ul class="etl-benefits">
+                    <li><strong>Automated Data Quality Assessment:</strong> Quickly identify data quality issues, missing values, and anomalies</li>
+                    <li><strong>Intelligent Data Cleaning:</strong> Apply smart cleaning strategies based on data patterns and best practices</li>
+                    <li><strong>Pattern Recognition:</strong> Discover hidden patterns and relationships in your data automatically</li>
+                    <li><strong>Transformation Recommendations:</strong> Get AI-powered suggestions for optimal data transformations</li>
+                    <li><strong>Real-time Insights:</strong> Receive immediate feedback and recommendations during data preparation</li>
+                    <li><strong>Scalable Processing:</strong> Handle large datasets efficiently with intelligent sampling and processing</li>
+                </ul>
+                
+                <h5 class="mt-4 mb-3">How to Use in Your ETL Pipeline:</h5>
+                <ol class="mt-3">
+                    <li><strong>Extract:</strong> Upload your raw data from various sources</li>
+                    <li><strong>Explore:</strong> Use AI Copilot to understand data structure and quality</li>
+                    <li><strong>Transform:</strong> Apply recommended cleaning and transformation operations</li>
+                    <li><strong>Validate:</strong> Review AI insights and data quality improvements</li>
+                    <li><strong>Load:</strong> Download the prepared data for your target systems</li>
+                </ol>
+                
+                <p class="mt-4">This tool integrates seamlessly with existing ETL workflows, providing an intelligent layer that enhances data preparation efficiency and quality.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Application state
+        const appState = {
+            sessionId: null,
+            selectedColumns: [],
+            selectedOperation: null,
+            datasetInfo: null,
+            analysisResult: null
+        };
+
+        // DOM elements
+        const elements = {
+            datasetInfoLoading: document.getElementById('dataset-info-loading'),
+            datasetInfoContent: document.getElementById('dataset-info-content'),
+            datasetRows: document.getElementById('dataset-rows'),
+            datasetColumns: document.getElementById('dataset-columns'),
+            datasetFilename: document.getElementById('dataset-filename'),
+            columnSelection: document.getElementById('column-selection'),
+            selectAllBtn: document.getElementById('select-all-btn'),
+            clearSelectionBtn: document.getElementById('clear-selection-btn'),
+            selectedCount: document.getElementById('selected-count'),
+            operationCards: document.querySelectorAll('.operation-card'),
+            modelSelect: document.getElementById('model-select'),
+            operationType: document.getElementById('operation-type'),
+            customInstructionContainer: document.getElementById('custom-instruction-container'),
+            customInstruction: document.getElementById('custom-instruction'),
+            startAnalysisBtn: document.getElementById('start-analysis-btn'),
+            resetBtn: document.getElementById('reset-btn'),
+            analysisLoading: document.getElementById('analysis-loading'),
+            resultsSection: document.getElementById('results-section'),
+            insightsContainer: document.getElementById('insights-container'),
+            visualizationsCard: document.getElementById('visualizations-card'),
+            visualizationsContainer: document.getElementById('visualizations-container'),
+            changesCard: document.getElementById('changes-card'),
+            changesContainer: document.getElementById('changes-container'),
+            downloadBtn: document.getElementById('download-btn')
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+        });
+
+        function initializeApp() {
+            // Get session ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            appState.sessionId = urlParams.get('session_id');
+            
+            if (!appState.sessionId) {
+                alert('No session found. Please upload a dataset first.');
+                window.location.href = '/';
+                return;
+            }
+            
+            // Load dataset information
+            loadDatasetInfo();
+        }
+
+        function setupEventListeners() {
+            // Column selection buttons
+            elements.selectAllBtn.addEventListener('click', selectAllColumns);
+            elements.clearSelectionBtn.addEventListener('click', clearColumnSelection);
+            
+            // Operation selection
+            elements.operationCards.forEach(card => {
+                card.addEventListener('click', () => selectOperation(card.dataset.operation));
+            });
+            
+            // Analysis controls
+            elements.startAnalysisBtn.addEventListener('click', startAnalysis);
+            elements.resetBtn.addEventListener('click', resetAnalysis);
+            elements.downloadBtn.addEventListener('click', downloadResults);
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/api/ai-copilot/dataset-info?session_id=${appState.sessionId}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load dataset info');
+                }
+                
+                appState.datasetInfo = data;
+                displayDatasetInfo(data);
+                displayColumns(data.columns_info);
+                
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                alert('Error loading dataset information: ' + error.message);
+            }
+        }
+
+        function displayDatasetInfo(data) {
+            elements.datasetRows.textContent = data.rows.toLocaleString();
+            elements.datasetColumns.textContent = data.columns.toLocaleString();
+            elements.datasetFilename.textContent = data.filename;
+            
+            elements.datasetInfoLoading.style.display = 'none';
+            elements.datasetInfoContent.style.display = 'block';
+        }
+
+        function displayColumns(columns) {
+            elements.columnSelection.innerHTML = '';
+            
+            columns.forEach(column => {
+                const columnDiv = document.createElement('div');
+                columnDiv.className = 'column-item';
+                columnDiv.dataset.column = column.name;
+                
+                const qualityClass = `quality-${column.quality.toLowerCase()}`;
+                
+                columnDiv.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <strong>${column.name}</strong>
+                        <div>
+                            <span class="column-type">${column.type}</span>
+                            <span class="quality-badge ${qualityClass}">${column.quality}</span>
+                        </div>
+                    </div>
+                    <div class="column-info">
+                        <div>Missing: ${column.missing_pct}</div>
+                        <div>Unique: ${column.unique_count.toLocaleString()}</div>
+                        <div class="mt-1">
+                            <small class="text-muted">Sample: ${column.sample_values.slice(0, 3).join(', ')}</small>
+                        </div>
+                    </div>
+                `;
+                
+                columnDiv.addEventListener('click', () => toggleColumnSelection(column.name));
+                elements.columnSelection.appendChild(columnDiv);
+            });
+        }
+
+        function toggleColumnSelection(columnName) {
+            const columnDiv = document.querySelector(`[data-column="${columnName}"]`);
+            
+            if (appState.selectedColumns.includes(columnName)) {
+                // Deselect
+                appState.selectedColumns = appState.selectedColumns.filter(col => col !== columnName);
+                columnDiv.classList.remove('selected');
+            } else {
+                // Select
+                appState.selectedColumns.push(columnName);
+                columnDiv.classList.add('selected');
+            }
+            
+            updateSelectedCount();
+            updateAnalysisButton();
+        }
+
+        function selectAllColumns() {
+            appState.selectedColumns = appState.datasetInfo.columns_info.map(col => col.name);
+            document.querySelectorAll('.column-item').forEach(div => {
+                div.classList.add('selected');
+            });
+            updateSelectedCount();
+            updateAnalysisButton();
+        }
+
+        function clearColumnSelection() {
+            appState.selectedColumns = [];
+            document.querySelectorAll('.column-item').forEach(div => {
+                div.classList.remove('selected');
+            });
+            updateSelectedCount();
+            updateAnalysisButton();
+        }
+
+        function updateSelectedCount() {
+            elements.selectedCount.textContent = appState.selectedColumns.length;
+        }
+
+        function selectOperation(operation) {
+            appState.selectedOperation = operation;
+            
+            // Update UI
+            elements.operationCards.forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            const selectedCard = document.querySelector(`[data-operation="${operation}"]`);
+            selectedCard.classList.add('selected');
+            
+            // Update operation type display
+            const operationTitle = selectedCard.querySelector('.operation-title').textContent;
+            elements.operationType.value = operationTitle;
+            
+            // Show/hide custom instruction for custom analysis
+            if (operation === 'custom_analysis') {
+                elements.customInstructionContainer.style.display = 'block';
+            } else {
+                elements.customInstructionContainer.style.display = 'none';
+            }
+            
+            updateAnalysisButton();
+        }
+
+        function updateAnalysisButton() {
+            const hasColumns = appState.selectedColumns.length > 0;
+            const hasOperation = appState.selectedOperation !== null;
+            const hasCustomInstruction = appState.selectedOperation !== 'custom_analysis' || 
+                                        elements.customInstruction.value.trim() !== '';
+            
+            elements.startAnalysisBtn.disabled = !(hasColumns && hasOperation && hasCustomInstruction);
+        }
+
+        async function startAnalysis() {
+            try {
+                // Show loading
+                elements.analysisLoading.style.display = 'block';
+                elements.resultsSection.style.display = 'none';
+                
+                // Prepare request data
+                const requestData = {
+                    session_id: appState.sessionId,
+                    selected_columns: appState.selectedColumns,
+                    operation_type: appState.selectedOperation,
+                    model: elements.modelSelect.value,
+                    custom_instruction: elements.customInstruction.value.trim()
+                };
+                
+                const response = await fetch('/api/ai-copilot/explore', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Analysis failed');
+                }
+                
+                appState.analysisResult = result;
+                displayResults(result);
+                
+            } catch (error) {
+                console.error('Error during analysis:', error);
+                alert('Analysis failed: ' + error.message);
+            } finally {
+                elements.analysisLoading.style.display = 'none';
+            }
+        }
+
+        function displayResults(result) {
+            // Display insights
+            displayInsights(result.insights || []);
+            
+            // Display visualizations if available
+            if (result.visualizations && result.visualizations.length > 0) {
+                displayVisualizations(result.visualizations);
+                elements.visualizationsCard.style.display = 'block';
+            } else {
+                elements.visualizationsCard.style.display = 'none';
+            }
+            
+            // Display changes summary if available
+            if (result.changes_summary && result.changes_summary.length > 0) {
+                displayChanges(result.changes_summary);
+                elements.changesCard.style.display = 'block';
+                elements.downloadBtn.disabled = false;
+            } else {
+                elements.changesCard.style.display = 'none';
+            }
+            
+            // Show results section
+            elements.resultsSection.style.display = 'block';
+            
+            // Scroll to results
+            elements.resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayInsights(insights) {
+            elements.insightsContainer.innerHTML = '';
+            
+            if (insights.length === 0) {
+                elements.insightsContainer.innerHTML = '<p class="text-muted">No insights available.</p>';
+                return;
+            }
+            
+            insights.forEach(insight => {
+                const insightDiv = document.createElement('div');
+                insightDiv.className = 'insight-card';
+                insightDiv.innerHTML = `
+                    <div class="insight-title">${insight.title}</div>
+                    <div class="insight-description">${insight.description}</div>
+                `;
+                elements.insightsContainer.appendChild(insightDiv);
+            });
+        }
+
+        function displayVisualizations(visualizations) {
+            elements.visualizationsContainer.innerHTML = '';
+            
+            visualizations.forEach(viz => {
+                const vizDiv = document.createElement('div');
+                vizDiv.className = 'visualization-container';
+                vizDiv.innerHTML = `
+                    <div class="visualization-title">${viz.title}</div>
+                    <img src="data:image/png;base64,${viz.data}" alt="${viz.title}" class="visualization-image">
+                `;
+                elements.visualizationsContainer.appendChild(vizDiv);
+            });
+        }
+
+        function displayChanges(changes) {
+            elements.changesContainer.innerHTML = '';
+            
+            if (changes.length === 0) {
+                elements.changesContainer.innerHTML = '<p class="text-muted">No changes were made to the data.</p>';
+                return;
+            }
+            
+            const changesList = document.createElement('ul');
+            changesList.className = 'list-group list-group-flush';
+            
+            changes.forEach(change => {
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex align-items-center';
+                listItem.innerHTML = `
+                    <i class="bi bi-check-circle text-success me-3"></i>
+                    ${change}
+                `;
+                changesList.appendChild(listItem);
+            });
+            
+            elements.changesContainer.appendChild(changesList);
+        }
+
+        async function downloadResults() {
+            try {
+                if (!appState.analysisResult || !appState.analysisResult.operation_id) {
+                    alert('No analysis results to download');
+                    return;
+                }
+                
+                const response = await fetch('/api/ai-copilot/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: appState.sessionId,
+                        operation_id: appState.analysisResult.operation_id
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Download failed');
+                }
+                
+                // Create download link
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ai_copilot_result_${appState.analysisResult.operation_id}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+            } catch (error) {
+                console.error('Error downloading results:', error);
+                alert('Download failed: ' + error.message);
+            }
+        }
+
+        function resetAnalysis() {
+            // Reset state
+            appState.selectedColumns = [];
+            appState.selectedOperation = null;
+            appState.analysisResult = null;
+            
+            // Reset UI
+            clearColumnSelection();
+            elements.operationCards.forEach(card => card.classList.remove('selected'));
+            elements.operationType.value = '';
+            elements.customInstruction.value = '';
+            elements.customInstructionContainer.style.display = 'none';
+            elements.resultsSection.style.display = 'none';
+            elements.analysisLoading.style.display = 'none';
+            elements.downloadBtn.disabled = true;
+            
+            updateAnalysisButton();
+        }
+
+        // Add event listener for custom instruction changes
+        elements.customInstruction.addEventListener('input', updateAnalysisButton);
+    </script>
+</body>
+</html>

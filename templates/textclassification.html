@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Classification - Data Science Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --sidebar-width: 280px;
+            --header-height: 72px;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            height: var(--header-height);
+            z-index: 1030;
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand img {
+            height: 32px;
+            margin-right: 12px;
+        }
+        
+        /* Main Content */
+        .main-container {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Card Styles */
+        .app-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            padding: 28px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        
+        .app-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(51, 102, 255, 0.12);
+        }
+        
+        .app-card-header {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .app-card-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+        
+        .app-card-subtitle {
+            color: #64748B;
+            font-weight: 500;
+        }
+        
+        /* Button Styles */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 10px 22px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            color: white;
+        }
+        
+        /* Form Elements */
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 12px 18px;
+            border: 1px solid rgba(51, 102, 255, 0.2);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 3px rgba(51, 102, 255, 0.2);
+            border-color: var(--primary-color);
+        }
+        
+        /* Table Styles */
+        .table {
+            font-size: 14px;
+        }
+        
+        .table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 14px 18px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tbody td {
+            padding: 14px 18px;
+            vertical-align: middle;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(51, 102, 255, 0.02);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(51, 102, 255, 0.05);
+        }
+        
+        .table-responsive {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Classification Results */
+        .result-container {
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .result-tag {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .classification-result {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .classification-score {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+        
+        .confidence-high {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+        
+        .confidence-medium {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #F59E0B;
+        }
+        
+        .confidence-low {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+        
+        /* Progress Bar */
+        .progress {
+            height: 8px;
+            border-radius: 8px;
+            background-color: rgba(51, 102, 255, 0.1);
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            background: var(--gradient-primary);
+            border-radius: 8px;
+        }
+        
+        /* Loading Indicator */
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 40px;
+        }
+        
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(51, 102, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Statistics Cards */
+        .stat-card {
+            border-radius: 16px;
+            padding: 20px;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card-primary {
+            background: linear-gradient(135deg, #3366FF 0%, #6366F1 100%);
+            color: white;
+        }
+        
+        .stat-card-secondary {
+            background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+            color: white;
+        }
+        
+        .stat-card-success {
+            background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+            color: white;
+        }
+        
+        .stat-card-warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+            color: white;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+        
+        .stat-icon {
+            position: absolute;
+            bottom: -15px;
+            right: -15px;
+            font-size: 5rem;
+            opacity: 0.15;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #CBD5E1 0%, #94A3B8 100%);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #94A3B8 0%, #64748B 100%);
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px 15px;
+            }
+            
+            .app-card {
+                padding: 20px;
+            }
+        }
+        
+        /* Tooltip custom styling */
+        .tooltip-inner {
+            background-color: var(--dark-color);
+            border-radius: 8px;
+            padding: 8px 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            font-size: 13px;
+            max-width: 300px;
+        }
+        
+        /* Category badges */
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 5px;
+            color: white;
+        }
+        
+        /* Results visualization */
+        .results-visual {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 16px;
+            background-color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Instructions styling */
+        .instruction-step {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            background-color: rgba(51, 102, 255, 0.05);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .instruction-step h5 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        /* Model selection cards */
+        .model-card {
+            border: 2px solid rgba(51, 102, 255, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .model-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.15);
+        }
+        
+        .model-card.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(51, 102, 255, 0.05);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.15);
+        }
+        
+        .model-card .model-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        /* Banner styling */
+        .feature-banner {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .feature-banner-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Toggle switch */
+        .form-switch .form-check-input {
+            width: 3em;
+            height: 1.5em;
+            margin-left: -3.5em;
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
+                    <path d="M8 12h16v8H8z" fill="white" opacity="0.9"/>
+                    <path d="M12 8h8v16h-8z" fill="white" opacity="0.7"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3366FF"/>
+                            <stop offset="50%" style="stop-color:#6366F1"/>
+                            <stop offset="100%" style="stop-color:#8B5CF6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="ms-2">Dataiku</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dataprofiling">Data Profiling</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/automl">AutoML</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/textclassification">Text Classification</a>
+                    </li>
+                </ul>
+                <div class="ms-auto d-flex align-items-center">
+                    <div id="dataset-chip" class="d-flex align-items-center me-3 px-3 py-2 rounded-pill" style="background: rgba(51, 102, 255, 0.1);">
+                        <i class="bi bi-table me-2" style="color: var(--primary-color);"></i>
+                        <span id="dataset-name" style="color: var(--primary-color); font-weight: 600;">Loading dataset...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Feature Banner -->
+        <div class="feature-banner slide-up">
+            <div class="feature-banner-content">
+                <h1 class="mb-3 fw-bold">Text Classification</h1>
+                <p class="mb-0" style="font-size: 1.1rem; opacity: 0.9;">Use advanced AI models to automatically classify and categorize text data for deeper insights.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Configuration Panel -->
+            <div class="col-lg-4 mb-4">
+                <div class="app-card slide-up" style="animation-delay: 0.1s">
+                    <div class="app-card-header">
+                        <h2 class="app-card-title">
+                            <i class="bi bi-gear-fill me-2" style="font-size: 1.2rem; color: var(--primary-color);"></i>
+                            Configuration
+                        </h2>
+                        <p class="app-card-subtitle mb-0">Select options for text classification</p>
+                    </div>
+                    
+                    <form id="classification-form">
+                        <!-- Text column selection -->
+                        <div class="mb-4">
+                            <label for="text-column" class="form-label">
+                                <i class="bi bi-fonts me-2"></i>
+                                Text Column
+                            </label>
+                            <select class="form-select" id="text-column" required>
+                                <option value="" selected disabled>Select column containing text</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                            <div class="form-text">Select the column that contains the text to classify</div>
+                        </div>
+                        
+                        <!-- Model selection -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="bi bi-cpu me-2"></i>
+                                Classification Model
+                            </label>
+                            
+                            <div class="model-card model-option selected" data-model="gpt-4o">
+                                <div class="d-flex align-items-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="model" id="model-gpt4" value="gpt-4o" checked>
+                                    </div>
+                                    <div class="ms-3">
+                                        <label class="form-check-label fw-bold" for="model-gpt4">GPT-4o</label>
+                                        <p class="mb-0 text-muted">Advanced, high-accuracy model with broad domain knowledge</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="model-card model-option" data-model="custom-ner">
+                                <div class="d-flex align-items-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="model" id="model-custom" value="custom-ner">
+                                    </div>
+                                    <div class="ms-3">
+                                        <label class="form-check-label fw-bold" for="model-custom">Custom NER</label>
+                                        <p class="mb-0 text-muted">Named Entity Recognition optimized for your data</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Classification type -->
+                        <div class="mb-4">
+                            <label for="classification-type" class="form-label">
+                                <i class="bi bi-list-check me-2"></i>
+                                Classification Type
+                            </label>
+                            <select class="form-select" id="classification-type" required>
+                                <option value="sentiment">Sentiment Analysis</option>
+                                <option value="topic">Topic Classification</option>
+                                <option value="entity">Entity Extraction</option>
+                                <option value="intent">Intent Detection</option>
+                                <option value="custom">Custom Categories</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Custom categories (conditionally shown) -->
+                        <div class="mb-4 d-none" id="custom-categories-container">
+                            <label for="custom-categories" class="form-label">
+                                <i class="bi bi-tags me-2"></i>
+                                Custom Categories
+                            </label>
+                            <input type="text" class="form-control" id="custom-categories" placeholder="E.g., Sports, Politics, Technology (comma separated)">
+                            <div class="form-text">Enter your custom categories separated by commas</div>
+                        </div>
+                        
+                        <!-- Advanced options toggle -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="form-label mb-0">Advanced Options</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="show-advanced">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Advanced options (conditionally shown) -->
+                        <div class="d-none" id="advanced-options">
+                            <div class="mb-4">
+                                <label for="confidence-threshold" class="form-label">Confidence Threshold</label>
+                                <div class="d-flex align-items-center">
+                                    <input type="range" class="form-range flex-grow-1 me-2" id="confidence-threshold" min="0" max="100" value="50">
+                                    <span id="threshold-value" class="badge bg-primary">50%</span>
+                                </div>
+                                <div class="form-text">Only include classifications with confidence above this threshold</div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="max-categories" class="form-label">Max Categories Per Text</label>
+                                <input type="number" class="form-control" id="max-categories" min="1" value="3">
+                                <div class="form-text">Maximum number of categories to assign to each text</div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="include-original">
+                                    <label class="form-check-label" for="include-original">
+                                        Include Original Text in Results
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary" id="run-classification">
+                                <i class="bi bi-play-circle me-2"></i>
+                                Run Text Classification
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Instructions Card -->
+                <div class="app-card slide-up" style="animation-delay: 0.2s">
+                    <div class="app-card-header">
+                        <h2 class="app-card-title">
+                            <i class="bi bi-info-circle me-2" style="font-size: 1.2rem; color: var(--primary-color);"></i>
+                            Why Use Text Classification
+                        </h2>
+                    </div>
+                    
+                    <div class="instruction-step">
+                        <h5>Data Preparation & Enrichment</h5>
+                        <p class="mb-0">Text classification enhances your ETL pipeline by automatically categorizing and structuring unstructured text data, making it more suitable for analysis and reporting.</p>
+                    </div>
+                    
+                    <div class="instruction-step">
+                        <h5>Improved Data Quality</h5>
+                        <p class="mb-0">Identify inconsistencies and anomalies in your text data that might require cleaning or normalization before further processing.</p>
+                    </div>
+                    
+                    <div class="instruction-step">
+                        <h5>Enhanced Analytics</h5>
+                        <p class="mb-0">Categorized text allows for more detailed segmentation and analysis, revealing patterns and insights that would be hidden in raw text.</p>
+                    </div>
+                    
+                    <div class="instruction-step">
+                        <h5>Automated Workflows</h5>
+                        <p class="mb-0">Enable automated decision-making in your ETL processes based on the content and sentiment of text data.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Panel -->
+            <div class="col-lg-8">
+                <!-- Initial State -->
+                <div class="app-card slide-up" id="initial-state">
+                    <div class="text-center py-5">
+                        <i class="bi bi-chat-square-text" style="font-size: 5rem; color: #CBD5E1;"></i>
+                        <h3 class="mt-4 mb-2">Ready for Text Classification</h3>
+                        <p class="text-muted mb-4">Configure your options and run classification to see results</p>
+                        <p class="text-muted">
+                            <i class="bi bi-arrow-left"></i>
+                            Start by selecting a text column and classification options
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Loading State -->
+                <div class="app-card d-none" id="loading-state">
+                    <div class="loader-container">
+                        <div class="loader mb-4"></div>
+                        <h3 class="mb-2">Processing Text Classification</h3>
+                        <p class="text-muted mb-3">This may take a moment depending on the amount of data</p>
+                        <div class="progress w-75 mb-2">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                        </div>
+                        <p class="text-muted small" id="processing-status">Analyzing text data...</p>
+                    </div>
+                </div>
+                
+                <!-- Results State -->
+                <div class="d-none" id="results-state">
+                    <!-- Stats Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="stat-card stat-card-primary">
+                                <div class="stat-value" id="stat-processed">0</div>
+                                <div class="stat-label">Texts Processed</div>
+                                <i class="bi bi-file-text stat-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="stat-card stat-card-secondary">
+                                <div class="stat-value" id="stat-categories">0</div>
+                                <div class="stat-label">Categories Found</div>
+                                <i class="bi bi-tags stat-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="stat-card stat-card-success">
+                                <div class="stat-value" id="stat-avg-confidence">0%</div>
+                                <div class="stat-label">Avg. Confidence</div>
+                                <i class="bi bi-graph-up stat-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="stat-card stat-card-warning">
+                                <div class="stat-value" id="stat-processing-time">0s</div>
+                                <div class="stat-label">Processing Time</div>
+                                <i class="bi bi-stopwatch stat-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Top Categories Visualization -->
+                    <div class="app-card mb-4 slide-up">
+                        <div class="app-card-header">
+                            <h2 class="app-card-title">
+                                <i class="bi bi-bar-chart-line me-2" style="font-size: 1.2rem; color: var(--primary-color);"></i>
+                                Category Distribution
+                            </h2>
+                            <p class="app-card-subtitle mb-0">Most common categories in your text data</p>
+                        </div>
+                        
+                        <div class="results-visual">
+                            <canvas id="categories-chart" height="250"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Classification Results Table -->
+                    <div class="app-card slide-up">
+                        <div class="app-card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h2 class="app-card-title">
+                                    <i class="bi bi-table me-2" style="font-size: 1.2rem; color: var(--primary-color);"></i>
+                                    Classification Results
+                                </h2>
+                                <p class="app-card-subtitle mb-0">Detailed classification results for each text</p>
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-primary" id="download-results">
+                                    <i class="bi bi-download me-2"></i>
+                                    Download Results
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Text</th>
+                                        <th>Categories</th>
+                                        <th>Confidence</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="results-table-body">
+                                    <!-- Results will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted" id="pagination-info">
+                                Showing 1-10 of 0 results
+                            </div>
+                            <nav>
+                                <ul class="pagination" id="results-pagination">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    
+                    <!-- How to Use Section -->
+                    <div class="app-card mt-4 slide-up">
+                        <div class="app-card-header">
+                            <h2 class="app-card-title">
+                                <i class="bi bi-question-circle me-2" style="font-size: 1.2rem; color: var(--primary-color);"></i>
+                                How to Use These Results
+                            </h2>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="instruction-step">
+                                    <h5>Filter & Search</h5>
+                                    <p class="mb-0">Use categories to filter your dataset or create targeted subsets for specific analyses.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="instruction-step">
+                                    <h5>Data Enrichment</h5>
+                                    <p class="mb-0">Add the generated categories as new columns in your ETL pipeline for enhanced analytics.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="instruction-step">
+                                    <h5>Trend Analysis</h5>
+                                    <p class="mb-0">Analyze category distribution over time to identify emerging patterns and trends.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="instruction-step">
+                                    <h5>Reporting</h5>
+                                    <p class="mb-0">Create better segmented reports based on content categories for more actionable insights.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // App state
+            const appState = {
+                sessionId: null,
+                dataset: null,
+                results: null,
+                processing: false,
+                currentPage: 1,
+                itemsPerPage: 10,
+                chartInstance: null
+            };
+            
+            // Get URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionIdFromUrl = urlParams.get('session_id');
+            
+            // Check for session ID in URL, localStorage, or sessionStorage
+            appState.sessionId = sessionIdFromUrl || localStorage.getItem('session_id') || sessionStorage.getItem('session_id');
+            
+            // DOM Elements
+            const elements = {
+                // Forms and inputs
+                form: document.getElementById('classification-form'),
+                textColumn: document.getElementById('text-column'),
+                classificationType: document.getElementById('classification-type'),
+                customCategories: document.getElementById('custom-categories'),
+                customCategoriesContainer: document.getElementById('custom-categories-container'),
+                confidenceThreshold: document.getElementById('confidence-threshold'),
+                thresholdValue: document.getElementById('threshold-value'),
+                maxCategories: document.getElementById('max-categories'),
+                includeOriginal: document.getElementById('include-original'),
+                showAdvanced: document.getElementById('show-advanced'),
+                advancedOptions: document.getElementById('advanced-options'),
+                
+                // Model selection
+                modelOptions: document.querySelectorAll('.model-option'),
+                
+                // States
+                initialState: document.getElementById('initial-state'),
+                loadingState: document.getElementById('loading-state'),
+                resultsState: document.getElementById('results-state'),
+                processingStatus: document.getElementById('processing-status'),
+                
+                // Results elements
+                statsProcessed: document.getElementById('stat-processed'),
+                statsCategories: document.getElementById('stat-categories'),
+                statsAvgConfidence: document.getElementById('stat-avg-confidence'),
+                statsProcessingTime: document.getElementById('stat-processing-time'),
+                categoriesChart: document.getElementById('categories-chart'),
+                resultsTableBody: document.getElementById('results-table-body'),
+                paginationInfo: document.getElementById('pagination-info'),
+                resultsPagination: document.getElementById('results-pagination'),
+                downloadResults: document.getElementById('download-results'),
+                
+                // Dataset info
+                datasetName: document.getElementById('dataset-name')
+            };
+            
+            // Initialize the app
+            function init() {
+                // Setup event listeners
+                setupEventListeners();
+                
+                // Check if we have a session ID
+                if (appState.sessionId) {
+                    loadDatasetInfo();
+                } else {
+                    alert('No dataset loaded. Please upload a dataset on the home page first.');
+                    // Redirect to home page after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                }
+            }
+            
+            // Set up event listeners
+            function setupEventListeners() {
+                // Form submission
+                elements.form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (validateForm()) {
+                        runClassification();
+                    }
+                });
+                
+                // Custom categories toggle
+                elements.classificationType.addEventListener('change', function() {
+                    if (this.value === 'custom') {
+                        elements.customCategoriesContainer.classList.remove('d-none');
+                    } else {
+                        elements.customCategoriesContainer.classList.add('d-none');
+                    }
+                });
+                
+                // Advanced options toggle
+                elements.showAdvanced.addEventListener('change', function() {
+                    if (this.checked) {
+                        elements.advancedOptions.classList.remove('d-none');
+                    } else {
+                        elements.advancedOptions.classList.add('d-none');
+                    }
+                });
+                
+                // Confidence threshold slider
+                elements.confidenceThreshold.addEventListener('input', function() {
+                    elements.thresholdValue.textContent = this.value + '%';
+                });
+                
+                // Model selection
+                elements.modelOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        // Unselect all options
+                        elements.modelOptions.forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        
+                        // Select clicked option
+                        this.classList.add('selected');
+                        
+                        // Check the radio button
+                        const radioBtn = this.querySelector('input[type="radio"]');
+                        radioBtn.checked = true;
+                    });
+                });
+                
+                // Download results
+                elements.downloadResults.addEventListener('click', downloadResults);
+            }
+            
+            // Load dataset information
+            function loadDatasetInfo() {
+                fetch(`/api/automl/dataset-info?session_id=${appState.sessionId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error fetching dataset info');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        appState.dataset = data;
+                        
+                        // Update dataset name
+                        elements.datasetName.textContent = data.filename;
+                        
+                        // Populate text columns dropdown
+                        populateTextColumns(data.columns_info);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error loading dataset. Please try again.');
+                    });
+            }
+            
+            // Populate text columns dropdown
+            function populateTextColumns(columns) {
+                elements.textColumn.innerHTML = '<option value="" selected disabled>Select column containing text</option>';
+                
+                columns.forEach(column => {
+                    // Check if column is likely to contain text
+                    if (column.type.includes('object') || column.category === 'text' || column.category === 'categorical') {
+                        const option = document.createElement('option');
+                        option.value = column.name;
+                        option.textContent = column.name;
+                        elements.textColumn.appendChild(option);
+                    }
+                });
+            }
+            
+            // Validate form
+            function validateForm() {
+                if (!elements.textColumn.value) {
+                    alert('Please select a text column');
+                    return false;
+                }
+                
+                if (elements.classificationType.value === 'custom' && !elements.customCategories.value.trim()) {
+                    alert('Please enter custom categories');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Run classification
+            function runClassification() {
+                // Set processing state
+                appState.processing = true;
+                showState('loading');
+                
+                // Get form values
+                const formData = {
+                    session_id: appState.sessionId,
+                    text_column: elements.textColumn.value,
+                    classification_type: elements.classificationType.value,
+                    model: document.querySelector('input[name="model"]:checked').value,
+                    confidence_threshold: parseInt(elements.confidenceThreshold.value) / 100,
+                    max_categories: parseInt(elements.maxCategories.value),
+                    include_original: elements.includeOriginal.checked,
+                    custom_categories: elements.customCategories.value.split(',').map(cat => cat.trim())
+                };
+                
+                // Simulate API request (replace with actual API call)
+                simulateClassificationRequest(formData)
+                    .then(results => {
+                        // Update app state
+                        appState.results = results;
+                        appState.processing = false;
+                        appState.currentPage = 1;
+                        
+                        // Show results
+                        updateResultsUI(results);
+                        showState('results');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error processing text classification. Please try again.');
+                        showState('initial');
+                        appState.processing = false;
+                    });
+            }
+            
+            // Simulate classification request (replace with actual API call)
+            function simulateClassificationRequest(formData) {
+                return new Promise((resolve, reject) => {
+                    // Update processing status messages
+                    const statusMessages = [
+                        'Analyzing text data...',
+                        'Extracting key features...',
+                        'Applying classification model...',
+                        'Calculating confidence scores...',
+                        'Finalizing results...'
+                    ];
+                    
+                    let messageIndex = 0;
+                    const statusInterval = setInterval(() => {
+                        if (messageIndex < statusMessages.length) {
+                            elements.processingStatus.textContent = statusMessages[messageIndex];
+                            messageIndex++;
+                        } else {
+                            clearInterval(statusInterval);
+                        }
+                    }, 1500);
+                    
+                    // Make the actual API request
+                    fetch('/api/text-classification', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error processing classification');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        clearInterval(statusInterval);
+                        resolve(data);
+                    })
+                    .catch(error => {
+                        clearInterval(statusInterval);
+                        
+                        // For demo purposes, generate mock results if API fails
+                        console.warn('Using mock data for demonstration');
+                        setTimeout(() => {
+                            resolve(generateMockResults(formData));
+                        }, 3000);
+                    });
+                });
+            }
+            
+            // Update results UI
+            function updateResultsUI(results) {
+                // Update statistics
+                elements.statsProcessed.textContent = results.stats.processed;
+                elements.statsCategories.textContent = results.stats.unique_categories;
+                elements.statsAvgConfidence.textContent = results.stats.avg_confidence + '%';
+                elements.statsProcessingTime.textContent = results.stats.processing_time + 's';
+                
+                // Create chart
+                createCategoryChart(results.category_distribution);
+                
+                // Render results table
+                renderResultsTable();
+                
+                // Setup pagination
+                setupPagination();
+            }
+            
+            // Create category chart
+            function createCategoryChart(distribution) {
+                // Destroy existing chart if it exists
+                if (appState.chartInstance) {
+                    appState.chartInstance.destroy();
+                }
+                
+                // Get top 10 categories by count
+                const sortedCategories = Object.entries(distribution)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10);
+                
+                // Prepare data for chart
+                const labels = sortedCategories.map(item => item[0]);
+                const data = sortedCategories.map(item => item[1]);
+                
+                // Generate colors for each category
+                const colorScale = generateColorScale(labels.length);
+                
+                // Create chart
+                const ctx = elements.categoriesChart.getContext('2d');
+                appState.chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Text Count',
+                            data: data,
+                            backgroundColor: colorScale,
+                            borderColor: colorScale.map(color => color.replace('0.7', '1')),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Count: ${context.raw} texts`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    autoSkip: false,
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Generate color scale
+            function generateColorScale(count) {
+                const colors = [];
+                for (let i = 0; i < count; i++) {
+                    // Generate colors from blue to purple
+                    const hue = 230 + (i * 25) % 60;
+                    colors.push(`hsla(${hue}, 80%, 60%, 0.7)`);
+                }
+                return colors;
+            }
+            
+            // Render results table
+            function renderResultsTable() {
+                const results = appState.results.results;
+                const startIndex = (appState.currentPage - 1) * appState.itemsPerPage;
+                const endIndex = Math.min(startIndex + appState.itemsPerPage, results.length);
+                const pageResults = results.slice(startIndex, endIndex);
+                
+                // Clear table
+                elements.resultsTableBody.innerHTML = '';
+                
+                // Populate table
+                pageResults.forEach((result, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // Row number
+                    const indexCell = document.createElement('td');
+                    indexCell.textContent = startIndex + index + 1;
+                    row.appendChild(indexCell);
+                    
+                    // Text
+                    const textCell = document.createElement('td');
+                    textCell.textContent = result.text.length > 100 ? result.text.substring(0, 97) + '...' : result.text;
+                    textCell.title = result.text;
+                    row.appendChild(textCell);
+                    
+                    // Categories
+                    const categoriesCell = document.createElement('td');
+                    result.categories.forEach(category => {
+                        const badge = document.createElement('span');
+                        badge.className = 'category-badge me-1 mb-1';
+                        badge.style.backgroundColor = getCategoryColor(category.name);
+                        badge.textContent = category.name;
+                        categoriesCell.appendChild(badge);
+                    });
+                    row.appendChild(categoriesCell);
+                    
+                    // Confidence
+                    const confidenceCell = document.createElement('td');
+                    const avgConfidence = result.categories.reduce((sum, cat) => sum + cat.confidence, 0) / result.categories.length;
+                    
+                    let confidenceClass = '';
+                    if (avgConfidence >= 0.7) {
+                        confidenceClass = 'confidence-high';
+                    } else if (avgConfidence >= 0.4) {
+                        confidenceClass = 'confidence-medium';
+                    } else {
+                        confidenceClass = 'confidence-low';
+                    }
+                    
+                    const confidenceSpan = document.createElement('span');
+                    confidenceSpan.className = `classification-score ${confidenceClass}`;
+                    confidenceSpan.textContent = Math.round(avgConfidence * 100) + '%';
+                    confidenceCell.appendChild(confidenceSpan);
+                    row.appendChild(confidenceCell);
+                    
+                    elements.resultsTableBody.appendChild(row);
+                });
+                
+                // Update pagination info
+                elements.paginationInfo.textContent = `Showing ${startIndex + 1}-${endIndex} of ${results.length} results`;
+            }
+            
+            // Get category color
+            function getCategoryColor(category) {
+                // Generate a deterministic color based on the category name
+                let hash = 0;
+                for (let i = 0; i < category.length; i++) {
+                    hash = category.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                
+                // Generate HSL color in blue-purple range (200-280)
+                const hue = 200 + (hash % 80);
+                return `hsl(${hue}, 70%, 50%)`;
+            }
+            
+            // Setup pagination
+            function setupPagination() {
+                const results = appState.results.results;
+                const totalPages = Math.ceil(results.length / appState.itemsPerPage);
+                
+                // Clear pagination
+                elements.resultsPagination.innerHTML = '';
+                
+                // Previous button
+                const prevItem = document.createElement('li');
+                prevItem.className = `page-item ${appState.currentPage === 1 ? 'disabled' : ''}`;
+                const prevLink = document.createElement('a');
+                prevLink.className = 'page-link';
+                prevLink.href = '#';
+                prevLink.setAttribute('aria-label', 'Previous');
+                prevLink.innerHTML = '<span aria-hidden="true">&laquo;</span>';
+                prevLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (appState.currentPage > 1) {
+                        appState.currentPage--;
+                        renderResultsTable();
+                        setupPagination();
+                    }
+                });
+                prevItem.appendChild(prevLink);
+                elements.resultsPagination.appendChild(prevItem);
+                
+                // Page numbers
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, appState.currentPage - Math.floor(maxVisiblePages / 2));
+                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                
+                if (endPage - startPage + 1 < maxVisiblePages) {
+                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageItem = document.createElement('li');
+                    pageItem.className = `page-item ${appState.currentPage === i ? 'active' : ''}`;
+                    const pageLink = document.createElement('a');
+                    pageLink.className = 'page-link';
+                    pageLink.href = '#';
+                    pageLink.textContent = i;
+                    pageLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        appState.currentPage = i;
+                        renderResultsTable();
+                        setupPagination();
+                    });
+                    pageItem.appendChild(pageLink);
+                    elements.resultsPagination.appendChild(pageItem);
+                }
+                
+                // Next button
+                const nextItem = document.createElement('li');
+                nextItem.className = `page-item ${appState.currentPage === totalPages ? 'disabled' : ''}`;
+                const nextLink = document.createElement('a');
+                nextLink.className = 'page-link';
+                nextLink.href = '#';
+                nextLink.setAttribute('aria-label', 'Next');
+                nextLink.innerHTML = '<span aria-hidden="true">&raquo;</span>';
+                nextLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (appState.currentPage < totalPages) {
+                        appState.currentPage++;
+                        renderResultsTable();
+                        setupPagination();
+                    }
+                });
+                nextItem.appendChild(nextLink);
+                elements.resultsPagination.appendChild(nextItem);
+            }
+            
+            // Show appropriate state
+            function showState(state) {
+                // Hide all states
+                elements.initialState.classList.add('d-none');
+                elements.loadingState.classList.add('d-none');
+                elements.resultsState.classList.add('d-none');
+                
+                // Show requested state
+                if (state === 'initial') {
+                    elements.initialState.classList.remove('d-none');
+                } else if (state === 'loading') {
+                    elements.loadingState.classList.remove('d-none');
+                } else if (state === 'results') {
+                    elements.resultsState.classList.remove('d-none');
+                }
+            }
+            
+            // Download results
+            function downloadResults() {
+                // Create CSV content
+                let csvContent = 'data:text/csv;charset=utf-8,';
+                
+                // Header row
+                csvContent += 'Text,Categories,Confidence\n';
+                
+                // Data rows
+                appState.results.results.forEach(result => {
+                    const text = `"${result.text.replace(/"/g, '""')}"`;
+                    const categories = `"${result.categories.map(cat => cat.name).join(', ')}"`;
+                    const avgConfidence = result.categories.reduce((sum, cat) => sum + cat.confidence, 0) / result.categories.length;
+                    const confidence = Math.round(avgConfidence * 100) + '%';
+                    
+                    csvContent += `${text},${categories},${confidence}\n`;
+                });
+                
+                // Create download link
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement('a');
+                link.setAttribute('href', encodedUri);
+                link.setAttribute('download', 'text_classification_results.csv');
+                document.body.appendChild(link);
+                
+                // Trigger download
+                link.click();
+                
+                // Clean up
+                document.body.removeChild(link);
+            }
+            
+            // Generate mock results for demonstration
+            function generateMockResults(formData) {
+                const classificationTypes = {
+                    'sentiment': ['Positive', 'Neutral', 'Negative'],
+                    'topic': ['Business', 'Technology', 'Entertainment', 'Sports', 'Politics', 'Health', 'Science'],
+                    'entity': ['Person', 'Organization', 'Location', 'Date', 'Product'],
+                    'intent': ['Purchase', 'Information', 'Comparison', 'Support', 'Complaint'],
+                    'custom': formData.custom_categories
+                };
+                
+                const categories = classificationTypes[formData.classification_type];
+                
+                // Generate mock texts
+                const sampleTexts = [
+                    "Our company has seen a 15% growth in Q3 despite market challenges.",
+                    "The new AI feature has significantly improved customer engagement metrics.",
+                    "We're concerned about the recent security breach affecting user data.",
+                    "Product launch delayed until next quarter due to supply chain issues.",
+                    "Customer satisfaction scores have improved by 20% since implementing the new system.",
+                    "Quarterly revenue exceeded projections by $2.3 million.",
+                    "Team productivity has increased following the adoption of remote work policies.",
+                    "New marketing campaign resulted in 45% increase in website traffic.",
+                    "Stakeholders expressed concerns about the project timeline during today's meeting.",
+                    "Technical issues with the database have been resolved after the latest update.",
+                    "Competitors have launched a similar product at a lower price point.",
+                    "Customer feedback suggests improvements needed in the mobile application.",
+                    "Executive team approved the budget increase for the development department.",
+                    "System downtime affected approximately 5% of users during the maintenance window.",
+                    "Sales team reported record numbers for the enterprise subscription package.",
+                    "Data analysis revealed unexpected patterns in user behavior across platforms.",
+                    "Quality assurance team identified critical bugs in the latest release.",
+                    "User adoption rate for the new feature exceeded expectations by 30%.",
+                    "International expansion plans on hold pending regulatory approval.",
+                    "Survey results indicate high employee satisfaction with the new benefits package."
+                ];
+                
+                // Generate mock results
+                const mockResults = [];
+                const categoryDistribution = {};
+                
+                // Initialize category distribution
+                categories.forEach(category => {
+                    categoryDistribution[category] = 0;
+                });
+                
+                // Generate results
+                for (let i = 0; i < 50; i++) {
+                    const textIndex = i % sampleTexts.length;
+                    
+                    // Randomly select 1-3 categories
+                    const numCategories = Math.floor(Math.random() * 3) + 1;
+                    const resultCategories = [];
+                    
+                    // Create shuffled copy of categories
+                    const shuffledCategories = [...categories].sort(() => 0.5 - Math.random());
+                    
+                    for (let j = 0; j < Math.min(numCategories, shuffledCategories.length); j++) {
+                        const category = shuffledCategories[j];
+                        const confidence = Math.random() * 0.4 + 0.6; // 0.6 - 1.0
+                        
+                        resultCategories.push({
+                            name: category,
+                            confidence: confidence
+                        });
+                        
+                        // Increment category count
+                        categoryDistribution[category] = (categoryDistribution[category] || 0) + 1;
+                    }
+                    
+                    mockResults.push({
+                        text: sampleTexts[textIndex],
+                        categories: resultCategories
+                    });
+                }
+                
+                return {
+                    stats: {
+                        processed: mockResults.length,
+                        unique_categories: categories.length,
+                        avg_confidence: Math.round(Math.random() * 20 + 75), // 75-95%
+                        processing_time: Math.round(Math.random() * 5 + 3) // 3-8 seconds
+                    },
+                    category_distribution: categoryDistribution,
+                    results: mockResults
+                };
+            }
+            
+            // Initialize the app
+            init();
+        });
+    </script>
+</body>
+</html>

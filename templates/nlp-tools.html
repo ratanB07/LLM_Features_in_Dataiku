@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLP Tools - Advanced Text Analysis Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+            --gradient-success: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            --gradient-warning: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .header-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Control Panel */
+        .control-panel {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            padding: 40px;
+            margin: -60px auto 40px;
+            position: relative;
+            z-index: 10;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            max-width: 1200px;
+        }
+        
+        /* Form Controls */
+        .form-select, .form-control {
+            border: 2px solid rgba(51, 102, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(51, 102, 255, 0.25);
+            background: white;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 12px 26px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .btn-success {
+            background: var(--gradient-success);
+            border: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+        
+        /* Results Section */
+        .results-section {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .results-header {
+            border-bottom: 2px solid rgba(51, 102, 255, 0.1);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .results-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+        }
+        
+        .results-subtitle {
+            color: #64748B;
+            font-size: 1rem;
+        }
+        
+        /* Data Table */
+        .table-container {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .table {
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+        
+        .table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 16px 20px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(51, 102, 255, 0.02);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(51, 102, 255, 0.05);
+        }
+        
+        /* Metrics Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(51, 102, 255, 0.1);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .metric-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 12px;
+        }
+        
+        /* Loading Spinner */
+        .loading-container {
+            text-align: center;
+            padding: 60px;
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+            width: 4rem;
+            height: 4rem;
+            border-width: 0.3em;
+        }
+        
+        /* Progress Bar */
+        .progress {
+            height: 8px;
+            border-radius: 8px;
+            background-color: rgba(51, 102, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            background: var(--gradient-primary);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 8px;
+        }
+        
+        /* Alert Styles */
+        .alert {
+            border: none;
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-weight: 500;
+        }
+        
+        .alert-info {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            color: var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+            color: var(--warning-color);
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        /* Badge Styles */
+        .badge {
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .badge-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+        
+        .badge-warning {
+            background: var(--gradient-warning);
+            color: white;
+        }
+        
+        /* Code Block Styles */
+        .code-block {
+            background: #2d3748;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            border: 1px solid rgba(51, 102, 255, 0.2);
+        }
+        
+        .code-block pre {
+            margin: 0;
+            color: #e2e8f0;
+            font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        /* Info Panel */
+        .info-panel {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(51, 102, 255, 0.2);
+        }
+        
+        .info-panel h4 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .info-panel ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .info-panel li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .info-panel li:last-child {
+            border-bottom: none;
+        }
+        
+        .info-panel li i {
+            color: var(--primary-color);
+            margin-right: 12px;
+            width: 20px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .control-panel {
+                margin: -40px 20px 40px;
+                padding: 30px 20px;
+            }
+            
+            .results-section {
+                margin: 0 20px 40px;
+                padding: 30px 20px;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.6s ease-in-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #CBD5E1 0%, #94A3B8 100%);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #94A3B8 0%, #64748B 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="header-brand">
+                    <i class="bi bi-chat-dots me-2"></i>
+                    NLP Tools Platform
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge badge-primary" id="dataset-indicator">No Dataset</span>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.close()">
+                        <i class="bi bi-x-lg me-1"></i>
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title animate__animated animate__fadeInUp">
+                    Advanced NLP Tools
+                </h1>
+                <p class="hero-subtitle animate__animated animate__fadeInUp animate__delay-1s">
+                    Harness the power of Large Language Models for text labeling, embedding generation, and intelligent predictions. 
+                    Transform your text data into actionable insights with state-of-the-art natural language processing capabilities.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Control Panel -->
+    <div class="container">
+        <div class="control-panel animate__animated animate__fadeInUp animate__delay-2s">
+            <h3 class="mb-4" style="color: var(--dark-color); font-weight: 700;">
+                <i class="bi bi-gear-fill me-2" style="color: var(--primary-color);"></i>
+                Configuration Panel
+            </h3>
+            
+            <form id="nlp-form">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="text-column" class="form-label">
+                            <i class="bi bi-file-text me-1"></i>
+                            Select Text Column
+                        </label>
+                        <select class="form-select" id="text-column" required>
+                            <option value="">Choose text column...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="nlp-task" class="form-label">
+                            <i class="bi bi-cpu me-1"></i>
+                            NLP Task
+                        </label>
+                        <select class="form-select" id="nlp-task" required>
+                            <option value="">Select NLP task...</option>
+                            <option value="sentiment">Sentiment Analysis</option>
+                            <option value="classification">Text Classification</option>
+                            <option value="entity_extraction">Named Entity Recognition</option>
+                            <option value="embedding">Text Embedding Generation</option>
+                            <option value="summarization">Text Summarization</option>
+                            <option value="topic_modeling">Topic Modeling</option>
+                            <option value="language_detection">Language Detection</option>
+                            <option value="keyword_extraction">Keyword Extraction</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="model-selection" class="form-label">
+                            <i class="bi bi-robot me-1"></i>
+                            AI Model
+                        </label>
+                        <select class="form-select" id="model-selection" required>
+                            <option value="">Choose AI model...</option>
+                            <option value="gpt-4o">GPT-4o (Recommended)</option>
+                            <option value="gpt-4">GPT-4</option>
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="sample-size" class="form-label">
+                            <i class="bi bi-collection me-1"></i>
+                            Sample Size
+                        </label>
+                        <select class="form-select" id="sample-size">
+                            <option value="100">100 rows (Fast)</option>
+                            <option value="500" selected>500 rows (Balanced)</option>
+                            <option value="1000">1000 rows (Comprehensive)</option>
+                            <option value="all">All rows (Full Dataset)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row" id="custom-labels-section" style="display: none;">
+                    <div class="col-12 mb-3">
+                        <label for="custom-labels" class="form-label">
+                            <i class="bi bi-tags me-1"></i>
+                            Custom Labels (comma-separated)
+                        </label>
+                        <input type="text" class="form-control" id="custom-labels" 
+                               placeholder="e.g., positive, negative, neutral">
+                        <small class="text-muted">Leave empty for automatic label detection</small>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-play-circle me-2"></i>
+                        Start NLP Analysis
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-lg" id="preview-btn">
+                        <i class="bi bi-eye me-2"></i>
+                        Preview Data
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Section -->
+    <div class="container d-none" id="loading-section">
+        <div class="results-section">
+            <div class="loading-container">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Processing...</span>
+                </div>
+                <h4 class="mt-4" style="color: var(--dark-color);">Processing your text data...</h4>
+                <p class="text-muted">This may take a few moments depending on your dataset size</p>
+                <div class="progress mt-4" style="max-width: 400px; margin: 0 auto;">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+                </div>
+                <p class="mt-2 text-muted" id="progress-text">Initializing...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="container d-none" id="results-section">
+        <div class="results-section fade-in">
+            <div class="results-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="results-title">
+                            <i class="bi bi-graph-up me-2" style="color: var(--primary-color);"></i>
+                            NLP Analysis Results
+                        </h2>
+                        <p class="results-subtitle" id="results-summary">Analysis completed successfully</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success" id="download-btn">
+                            <i class="bi bi-download me-2"></i>
+                            Download Results
+                        </button>
+                        <button class="btn btn-outline-primary" id="new-analysis-btn">
+                            <i class="bi bi-arrow-repeat me-2"></i>
+                            New Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Metrics Grid -->
+            <div class="metrics-grid" id="metrics-grid">
+                <!-- Metrics will be populated dynamically -->
+            </div>
+            
+            <!-- Results Table -->
+            <div class="table-container">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr id="results-table-header">
+                            <!-- Headers will be populated dynamically -->
+                        </tr>
+                    </thead>
+                    <tbody id="results-table-body">
+                        <!-- Results will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Analysis Insights -->
+            <div class="alert alert-info" id="analysis-insights">
+                <h5><i class="bi bi-lightbulb me-2"></i>AI-Powered Insights</h5>
+                <div id="insights-content">
+                    <!-- Insights will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ETL Information Panel -->
+    <div class="container">
+        <div class="info-panel">
+            <h4><i class="bi bi-info-circle me-2"></i>Why Use NLP Tools in ETL Pipelines?</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-primary mb-3">Benefits in ETL:</h6>
+                    <ul>
+                        <li><i class="bi bi-check-circle"></i>Automated text preprocessing and cleaning</li>
+                        <li><i class="bi bi-check-circle"></i>Intelligent data categorization and labeling</li>
+                        <li><i class="bi bi-check-circle"></i>Real-time sentiment monitoring</li>
+                        <li><i class="bi bi-check-circle"></i>Enhanced data quality through entity extraction</li>
+                        <li><i class="bi bi-check-circle"></i>Scalable text analysis for large datasets</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-primary mb-3">How to Use:</h6>
+                    <ul>
+                        <li><i class="bi bi-arrow-right"></i>Upload your dataset with text columns</li>
+                        <li><i class="bi bi-arrow-right"></i>Select the appropriate NLP task for your needs</li>
+                        <li><i class="bi bi-arrow-right"></i>Choose an AI model based on accuracy requirements</li>
+                        <li><i class="bi bi-arrow-right"></i>Configure sample size for processing speed</li>
+                        <li><i class="bi bi-arrow-right"></i>Download enriched data for your ETL pipeline</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        // Application state
+        const appState = {
+            sessionId: null,
+            dataset: null,
+            currentAnalysis: null
+        };
+
+        // DOM elements
+        const elements = {
+            form: document.getElementById('nlp-form'),
+            textColumn: document.getElementById('text-column'),
+            nlpTask: document.getElementById('nlp-task'),
+            modelSelection: document.getElementById('model-selection'),
+            sampleSize: document.getElementById('sample-size'),
+            customLabels: document.getElementById('custom-labels'),
+            customLabelsSection: document.getElementById('custom-labels-section'),
+            loadingSection: document.getElementById('loading-section'),
+            resultsSection: document.getElementById('results-section'),
+            progressBar: document.getElementById('progress-bar'),
+            progressText: document.getElementById('progress-text'),
+            datasetIndicator: document.getElementById('dataset-indicator'),
+            previewBtn: document.getElementById('preview-btn'),
+            downloadBtn: document.getElementById('download-btn'),
+            newAnalysisBtn: document.getElementById('new-analysis-btn'),
+            metricsGrid: document.getElementById('metrics-grid'),
+            resultsTableHeader: document.getElementById('results-table-header'),
+            resultsTableBody: document.getElementById('results-table-body'),
+            resultsSummary: document.getElementById('results-summary'),
+            insightsContent: document.getElementById('insights-content')
+        };
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+        });
+
+        function initializeApp() {
+            // Get session ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            appState.sessionId = urlParams.get('session_id');
+            
+            if (!appState.sessionId) {
+                showError('No session ID found. Please upload a dataset first.');
+                return;
+            }
+            
+            // Load dataset information
+            loadDatasetInfo();
+        }
+
+        function setupEventListeners() {
+            // Form submission
+            elements.form.addEventListener('submit', handleFormSubmit);
+            
+            // Task selection change
+            elements.nlpTask.addEventListener('change', handleTaskChange);
+            
+            // Preview button
+            elements.previewBtn.addEventListener('click', previewData);
+            
+            // Download button
+            elements.downloadBtn.addEventListener('click', downloadResults);
+            
+            // New analysis button
+            elements.newAnalysisBtn.addEventListener('click', resetAnalysis);
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/api/nlp-tools/dataset-info?session_id=${appState.sessionId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load dataset information');
+                }
+                
+                const data = await response.json();
+                appState.dataset = data;
+                
+                // Update UI
+                elements.datasetIndicator.textContent = `${data.filename} (${data.rows} rows)`;
+                elements.datasetIndicator.className = 'badge badge-success';
+                
+                // Populate text columns
+                populateTextColumns(data.columns);
+                
+            } catch (error) {
+                console.error('Error loading dataset:', error);
+                showError('Failed to load dataset information. Please try again.');
+            }
+        }
+
+        function populateTextColumns(columns) {
+            elements.textColumn.innerHTML = '<option value="">Choose text column...</option>';
+            
+            columns.forEach(column => {
+                // Assume text columns are those with 'object' dtype or contain text-like names
+                if (column.type === 'object' || 
+                    column.name.toLowerCase().includes('text') ||
+                    column.name.toLowerCase().includes('comment') ||
+                    column.name.toLowerCase().includes('review') ||
+                    column.name.toLowerCase().includes('description')) {
+                    
+                    const option = document.createElement('option');
+                    option.value = column.name;
+                    option.textContent = `${column.name} (${column.type})`;
+                    elements.textColumn.appendChild(option);
+                }
+            });
+        }
+
+        function handleTaskChange() {
+            const task = elements.nlpTask.value;
+            
+            // Show custom labels section for classification tasks
+            if (task === 'classification' || task === 'sentiment') {
+                elements.customLabelsSection.style.display = 'block';
+            } else {
+                elements.customLabelsSection.style.display = 'none';
+            }
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const formData = {
+                session_id: appState.sessionId,
+                text_column: elements.textColumn.value,
+                nlp_task: elements.nlpTask.value,
+                model: elements.modelSelection.value,
+                sample_size: elements.sampleSize.value,
+                custom_labels: elements.customLabels.value
+            };
+            
+            // Validate form
+            if (!formData.text_column || !formData.nlp_task || !formData.model) {
+                showError('Please fill in all required fields.');
+                return;
+            }
+            
+            // Start analysis
+            await startAnalysis(formData);
+        }
+
+        async function startAnalysis(formData) {
+            try {
+                // Show loading section
+                elements.loadingSection.classList.remove('d-none');
+                elements.resultsSection.classList.add('d-none');
+                
+                // Start progress simulation
+                simulateProgress();
+                
+                const response = await fetch('/api/nlp-tools/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Analysis failed');
+                }
+                
+                const results = await response.json();
+                appState.currentAnalysis = results;
+                
+                // Hide loading and show results
+                elements.loadingSection.classList.add('d-none');
+                displayResults(results);
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                elements.loadingSection.classList.add('d-none');
+                showError(`Analysis failed: ${error.message}`);
+            }
+        }
+
+        function simulateProgress() {
+            let progress = 0;
+            const progressSteps = [
+                { progress: 20, text: 'Loading dataset...' },
+                { progress: 40, text: 'Preprocessing text data...' },
+                { progress: 60, text: 'Running AI model...' },
+                { progress: 80, text: 'Generating insights...' },
+                { progress: 100, text: 'Finalizing results...' }
+            ];
+            
+            let stepIndex = 0;
+            const interval = setInterval(() => {
+                if (stepIndex < progressSteps.length) {
+                    const step = progressSteps[stepIndex];
+                    elements.progressBar.style.width = `${step.progress}%`;
+                    elements.progressText.textContent = step.text;
+                    stepIndex++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+
+        function displayResults(results) {
+            // Update summary
+            elements.resultsSummary.textContent = 
+                `Processed ${results.processed_rows} rows using ${results.model} model`;
+            
+            // Display metrics
+            displayMetrics(results.metrics);
+            
+            // Display results table
+            displayResultsTable(results.results);
+            
+            // Display insights
+            displayInsights(results.insights);
+            
+            // Show results section
+            elements.resultsSection.classList.remove('d-none');
+            elements.resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayMetrics(metrics) {
+            elements.metricsGrid.innerHTML = '';
+            
+            Object.entries(metrics).forEach(([key, value]) => {
+                const metricCard = document.createElement('div');
+                metricCard.className = 'metric-card slide-up';
+                
+                metricCard.innerHTML = `
+                    <div class="metric-value">${value}</div>
+                    <div class="metric-label">${formatMetricLabel(key)}</div>
+                `;
+                
+                elements.metricsGrid.appendChild(metricCard);
+            });
+        }
+
+        function displayResultsTable(results) {
+            // Clear existing content
+            elements.resultsTableHeader.innerHTML = '';
+            elements.resultsTableBody.innerHTML = '';
+            
+            if (!results || results.length === 0) {
+                elements.resultsTableBody.innerHTML = 
+                    '<tr><td colspan="100%" class="text-center">No results to display</td></tr>';
+                return;
+            }
+            
+            // Create headers
+            const headers = Object.keys(results[0]);
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = formatColumnName(header);
+                elements.resultsTableHeader.appendChild(th);
+            });
+            
+            // Create rows (show first 10 results)
+            results.slice(0, 10).forEach(row => {
+                const tr = document.createElement('tr');
+                headers.forEach(header => {
+                    const td = document.createElement('td');
+                    td.textContent = formatCellValue(row[header]);
+                    tr.appendChild(td);
+                });
+                elements.resultsTableBody.appendChild(tr);
+            });
+            
+            // Add "show more" indicator if there are more results
+            if (results.length > 10) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td colspan="${headers.length}" class="text-center text-muted">
+                        <i class="bi bi-three-dots"></i> 
+                        Showing 10 of ${results.length} results. Download for complete data.
+                    </td>
+                `;
+                elements.resultsTableBody.appendChild(tr);
+            }
+        }
+
+        function displayInsights(insights) {
+            if (!insights || insights.length === 0) {
+                elements.insightsContent.innerHTML = '<p>No insights available for this analysis.</p>';
+                return;
+            }
+            
+            let insightsHtml = '<ul class="list-unstyled">';
+            insights.forEach(insight => {
+                insightsHtml += `
+                    <li class="mb-2">
+                        <i class="bi bi-arrow-right-circle me-2 text-primary"></i>
+                        <strong>${insight.title}:</strong> ${insight.description}
+                    </li>
+                `;
+            });
+            insightsHtml += '</ul>';
+            
+            elements.insightsContent.innerHTML = insightsHtml;
+        }
+
+        async function previewData() {
+            if (!appState.dataset) {
+                showError('No dataset loaded');
+                return;
+            }
+            
+            // Simple preview - show first few rows of selected column
+            const column = elements.textColumn.value;
+            if (!column) {
+                showError('Please select a text column first');
+                return;
+            }
+            
+            alert(`Preview of column "${column}":\n\nThis feature shows a sample of your text data. The actual preview would display the first few rows of the selected column.`);
+        }
+
+        async function downloadResults() {
+            if (!appState.currentAnalysis) {
+                showError('No results to download');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/nlp-tools/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: appState.sessionId,
+                        analysis_id: appState.currentAnalysis.analysis_id
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+                
+                // Create download link
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `nlp_results_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+            } catch (error) {
+                console.error('Download error:', error);
+                showError('Failed to download results');
+            }
+        }
+
+        function resetAnalysis() {
+            elements.resultsSection.classList.add('d-none');
+            elements.loadingSection.classList.add('d-none');
+            elements.form.reset();
+            elements.customLabelsSection.style.display = 'none';
+            appState.currentAnalysis = null;
+        }
+
+        // Utility functions
+        function formatMetricLabel(key) {
+            return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatColumnName(name) {
+            return name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatCellValue(value) {
+            if (value === null || value === undefined) return 'N/A';
+            if (typeof value === 'number') return value.toFixed(3);
+            if (typeof value === 'string' && value.length > 50) {
+                return value.substring(0, 50) + '...';
+            }
+            return value;
+        }
+
+        function showError(message) {
+            alert(`Error: ${message}`);
+        }
+    </script>
+</body>
+</html>

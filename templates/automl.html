@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoML - Advanced Machine Learning Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --dark-bg: #0f0f23;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark-bg);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
+        }
+
+        /* Glass morphism cards */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Header */
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Main container */
+        .main-container {
+            padding: 2rem 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Step indicator */
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 1rem;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            opacity: 1;
+        }
+
+        .step.completed {
+            opacity: 1;
+            color: #4facfe;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background: var(--primary-gradient);
+            border-color: transparent;
+        }
+
+        .step.completed .step-circle {
+            background: var(--success-gradient);
+            border-color: transparent;
+        }
+
+        /* Algorithm cards */
+        .algorithm-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .algorithm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .algorithm-card:hover::before {
+            left: 100%;
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .algorithm-card.selected {
+            border-color: #4facfe;
+            background: rgba(79, 172, 254, 0.1);
+        }
+
+        /* Results section */
+        .results-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .metric-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: scale(1.05);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Buttons */
+        .btn-gradient {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-gradient:hover::before {
+            left: 100%;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Loading animation */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Feature engineering */
+        .feature-engineering-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .step-indicator {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .step {
+                margin: 0.5rem 0;
+            }
+            
+            .main-container {
+                padding: 1rem;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-gradient);
+        }
+
+        /* Insights section */
+        .insights-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #4facfe;
+        }
+
+        /* ETL explanation */
+        .etl-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .etl-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .etl-step:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        .etl-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        /* Fast training indicator */
+        .fast-training {
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+    
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="logo">
+                    <i class="bi bi-robot me-2"></i>
+                    AutoML Platform
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="fast-training">
+                        <i class="bi bi-lightning-fill me-1"></i>
+                        Ultra-Fast Training (&lt;5s)
+                    </div>
+                    <span class="me-3 ms-3" id="dataset-name">Loading dataset...</span>
+                    <button class="btn btn-outline-light btn-sm" onclick="window.close()">
+                        <i class="bi bi-x-lg"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="container">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step-1">
+                    <div class="step-circle">1</div>
+                    <span>Data Selection</span>
+                </div>
+                <div class="step" id="step-2">
+                    <div class="step-circle">2</div>
+                    <span>Algorithm Choice</span>
+                </div>
+                <div class="step" id="step-3">
+                    <div class="step-circle">3</div>
+                    <span>Training</span>
+                </div>
+                <div class="step" id="step-4">
+                    <div class="step-circle">4</div>
+                    <span>Results</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Data Selection -->
+            <div id="data-selection-step" class="step-content">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="glass-card p-4">
+                            <h2 class="text-center mb-4">
+                                <i class="bi bi-database me-2"></i>
+                                Configure Your ML Pipeline
+                            </h2>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-4">
+                                        <label class="form-label">Target Column (What to predict)</label>
+                                        <select class="form-select" id="target-column">
+                                            <option value="">Select target column...</option>
+                                        </select>
+                                        <small class="text-muted">Choose the column you want to predict</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-4">
+                                        <label class="form-label">Problem Type</label>
+                                        <select class="form-select" id="problem-type">
+                                            <option value="">Auto-detect</option>
+                                            <option value="classification">Classification</option>
+                                            <option value="regression">Regression</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Feature Columns (Input variables)</label>
+                                <div id="feature-columns" class="row">
+                                    <!-- Feature columns will be populated here -->
+                                </div>
+                                <small class="text-muted">Select columns to use as input features</small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-4">
+                                        <label class="form-label">Test Size</label>
+                                        <select class="form-select" id="test-size">
+                                            <option value="0.2">20% (Recommended)</option>
+                                            <option value="0.3">30%</option>
+                                            <option value="0.1">10%</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button class="btn btn-gradient" onclick="proceedToAlgorithmSelection()">
+                                    <i class="bi bi-arrow-right me-2"></i>
+                                    Choose Algorithm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Algorithm Selection -->
+            <div id="algorithm-selection-step" class="step-content d-none">
+                <div class="row">
+                    <div class="col-lg-10 mx-auto">
+                        <div class="glass-card p-4">
+                            <h2 class="text-center mb-4">
+                                <i class="bi bi-cpu me-2"></i>
+                                Select Machine Learning Algorithm
+                            </h2>
+                            
+                            <div class="text-center mb-4">
+                                <div class="fast-training">
+                                    <i class="bi bi-speedometer2 me-1"></i>
+                                    All algorithms optimized for ultra-fast training
+                                </div>
+                            </div>
+                            
+                            <div id="algorithm-categories">
+                                <!-- Algorithm categories will be populated here -->
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <button class="btn btn-outline-light me-3" onclick="backToDataSelection()">
+                                    <i class="bi bi-arrow-left me-2"></i>
+                                    Back
+                                </button>
+                                <button class="btn btn-gradient" onclick="startTraining()" id="start-training-btn" disabled>
+                                    <i class="bi bi-play-fill me-2"></i>
+                                    Start Training
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Training -->
+            <div id="training-step" class="step-content d-none">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="glass-card p-4">
+                            <div class="loading-container">
+                                <div class="loading-spinner mb-3"></div>
+                                <h3>Training Your Model</h3>
+                                <p class="text-muted">Ultra-fast training in progress...</p>
+                                <div class="progress mt-3" style="width: 300px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         style="width: 0%" id="training-progress"></div>
+                                </div>
+                                <small class="mt-2" id="training-status">Initializing...</small>
+                                <div class="fast-training mt-3">
+                                    <i class="bi bi-clock me-1"></i>
+                                    Target: &lt;5 seconds
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Results -->
+            <div id="results-step" class="step-content d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="glass-card p-4">
+                            <h2 class="text-center mb-4">
+                                <i class="bi bi-trophy me-2"></i>
+                                Model Training Results
+                            </h2>
+                            
+                            <!-- Training Time Display -->
+                            <div class="text-center mb-4">
+                                <div class="fast-training">
+                                    <i class="bi bi-stopwatch me-1"></i>
+                                    Training completed in <span id="training-time">0</span> seconds
+                                </div>
+                            </div>
+                            
+                            <!-- Metrics -->
+                            <div class="row mb-4" id="metrics-container">
+                                <!-- Metrics will be populated here -->
+                            </div>
+
+                            <!-- Visualizations -->
+                            <div class="row mb-4">
+                                <div class="col-lg-6">
+                                    <div class="glass-card p-3">
+                                        <h5>Model Performance</h5>
+                                        <div id="performance-chart"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="glass-card p-3">
+                                        <h5>Feature Importance</h5>
+                                        <div id="feature-importance-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AI Insights -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="insights-card">
+                                        <h5><i class="bi bi-lightbulb me-2"></i>AI-Powered Insights</h5>
+                                        <div id="ai-insights"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Feature Engineering -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="feature-engineering-card">
+                                        <h5><i class="bi bi-tools me-2"></i>Feature Engineering</h5>
+                                        <p class="text-muted">Improve your model performance with advanced feature engineering</p>
+                                        <button class="btn btn-gradient" onclick="showFeatureEngineering()">
+                                            <i class="bi bi-gear me-2"></i>
+                                            Enhance Features
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="text-center">
+                                <button class="btn btn-outline-light me-3" onclick="startOver()">
+                                    <i class="bi bi-arrow-repeat me-2"></i>
+                                    Try Another Algorithm
+                                </button>
+                                <button class="btn btn-gradient me-3" onclick="downloadModel()">
+                                    <i class="bi bi-download me-2"></i>
+                                    Download Model
+                                </button>
+                                <button class="btn btn-gradient" onclick="downloadData()">
+                                    <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                                    Download Processed Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ETL Explanation Section -->
+            <div class="etl-section">
+                <h3 class="text-center mb-4">
+                    <i class="bi bi-diagram-3 me-2"></i>
+                    Understanding AutoML in ETL Pipeline
+                </h3>
+                
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h5>Why Use AutoML in ETL?</h5>
+                        <div class="etl-step">
+                            <div class="etl-icon">
+                                <i class="bi bi-speedometer2"></i>
+                            </div>
+                            <div>
+                                <strong>Automated Model Selection</strong>
+                                <p class="mb-0">Automatically selects the best algorithm for your data without manual tuning</p>
+                            </div>
+                        </div>
+                        
+                        <div class="etl-step">
+                            <div class="etl-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <div>
+                                <strong>Data Quality Assurance</strong>
+                                <p class="mb-0">Identifies and handles missing values, outliers, and data inconsistencies</p>
+                            </div>
+                        </div>
+                        
+                        <div class="etl-step">
+                            <div class="etl-icon">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <div>
+                                <strong>Feature Engineering</strong>
+                                <p class="mb-0">Automatically creates new features to improve model performance</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <h5>How to Use AutoML Effectively</h5>
+                        <div class="etl-step">
+                            <div class="etl-icon">
+                                <i class="bi bi-1-circle"></i>
+                            </div>
+                            <div>
+                                <strong>Data Preparation</strong>
+                                <p class="mb-0">Ensure your data is clean and properly formatted before training</p>
+                            </div>
+                        </div>
+                        
+                        <div class="etl-step">
+                            <div class="etl-icon">
+                                <i class="bi bi-2-circle"></i>
+                            </div>
+                            <div>
+                                <strong>Target Definition</strong>
+                                <p class="mb-0">Clearly define what you want to predict (target variable)</p>
+                            </div>
+                        </div>
+                        
+                        <div class="etl-step">
+                            <div class="etl-icon">
+                                <i class="bi bi-3-circle"></i>
+                            </div>
+                            <div>
+                                <strong>Model Validation</strong>
+                                <p class="mb-0">Validate model performance using appropriate metrics and cross-validation</p>
+                            </div>
+                        </div>
+                        
+                        <div class="etl-step">
+                            <div class="etl-icon">
+                                <i class="bi bi-4-circle"></i>
+                            </div>
+                            <div>
+                                <strong>Deployment & Monitoring</strong>
+                                <p class="mb-0">Deploy the model and continuously monitor its performance in production</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Engineering Modal -->
+    <div class="modal fade" id="featureEngineeringModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-color);">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-tools me-2"></i>
+                        Feature Engineering
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Data Cleaning</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="remove-missing" checked>
+                                <label class="form-check-label" for="remove-missing">
+                                    Remove columns with >50% missing values
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="fill-missing" checked>
+                                <label class="form-check-label" for="fill-missing">
+                                    Fill missing values (mean/mode)
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="remove-outliers">
+                                <label class="form-check-label" for="remove-outliers">
+                                    Remove statistical outliers
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Feature Creation</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="polynomial-features">
+                                <label class="form-check-label" for="polynomial-features">
+                                    Create polynomial features
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="interaction-features">
+                                <label class="form-check-label" for="interaction-features">
+                                    Create interaction features
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="binning-features">
+                                <label class="form-check-label" for="binning-features">
+                                    Create binned features
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-gradient" onclick="applyFeatureEngineering()">
+                        <i class="bi bi-check-lg me-2"></i>
+                        Apply Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Global variables
+        let datasetInfo = null;
+        let selectedAlgorithm = null;
+        let selectedProblemType = null;
+        let currentModelId = null;
+        let currentStep = 1;
+        let currentSessionId = null;
+
+        // Get session ID from URL parameters
+        function getSessionIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('session_id');
+        }
+
+        // Initialize particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Load dataset information
+        async function loadDatasetInfo() {
+            try {
+                // Get session ID from URL
+                currentSessionId = getSessionIdFromUrl();
+                console.log('Session ID from URL:', currentSessionId);
+                
+                const url = currentSessionId ? 
+                    `/api/automl/dataset-info?session_id=${currentSessionId}` : 
+                    '/api/automl/dataset-info';
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert(data.error);
+                    window.close();
+                    return;
+                }
+                
+                datasetInfo = data;
+                currentSessionId = data.session_id || currentSessionId;
+                document.getElementById('dataset-name').textContent = data.filename;
+                populateColumns();
+                console.log('Dataset info loaded successfully');
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                alert('Error loading dataset information');
+            }
+        }
+
+        // Populate column selectors
+        function populateColumns() {
+            const targetSelect = document.getElementById('target-column');
+            const featureContainer = document.getElementById('feature-columns');
+            
+            // Clear existing options
+            targetSelect.innerHTML = '<option value="">Select target column...</option>';
+            featureContainer.innerHTML = '';
+            
+            datasetInfo.columns_info.forEach(col => {
+                // Add to target column dropdown if suitable
+                if (col.is_target_suitable) {
+                    const option = document.createElement('option');
+                    option.value = col.name;
+                    option.textContent = `${col.name} (${col.target_type})`;
+                    option.dataset.problemType = col.target_type;
+                    targetSelect.appendChild(option);
+                }
+                
+                // Add to feature columns
+                const colDiv = document.createElement('div');
+                colDiv.className = 'col-md-6 mb-2';
+                colDiv.innerHTML = `
+                    <div class="form-check">
+                        <input class="form-check-input feature-column" type="checkbox" 
+                               value="${col.name}" id="feature-${col.name}" checked>
+                        <label class="form-check-label" for="feature-${col.name}">
+                            ${col.name} <small class="text-muted">(${col.type})</small>
+                        </label>
+                    </div>
+                `;
+                featureContainer.appendChild(colDiv);
+            });
+            
+            // Add event listener for target column change
+            targetSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.dataset.problemType) {
+                    document.getElementById('problem-type').value = selectedOption.dataset.problemType;
+                    selectedProblemType = selectedOption.dataset.problemType;
+                }
+                
+                // Uncheck the target column from features
+                const targetFeature = document.getElementById(`feature-${this.value}`);
+                if (targetFeature) {
+                    targetFeature.checked = false;
+                }
+            });
+        }
+
+        // Proceed to algorithm selection
+        function proceedToAlgorithmSelection() {
+            const targetColumn = document.getElementById('target-column').value;
+            const problemType = document.getElementById('problem-type').value;
+            const featureColumns = Array.from(document.querySelectorAll('.feature-column:checked')).map(cb => cb.value);
+            
+            if (!targetColumn) {
+                alert('Please select a target column');
+                return;
+            }
+            
+            if (!problemType) {
+                alert('Please select a problem type');
+                return;
+            }
+            
+            if (featureColumns.length === 0) {
+                alert('Please select at least one feature column');
+                return;
+            }
+            
+            selectedProblemType = problemType;
+            populateAlgorithms();
+            showStep(2);
+        }
+
+        // Populate algorithms based on problem type
+        function populateAlgorithms() {
+            const container = document.getElementById('algorithm-categories');
+            container.innerHTML = '';
+            
+            const algorithms = datasetInfo.algorithms[selectedProblemType];
+            
+            Object.keys(algorithms).forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'mb-4';
+                
+                const categoryTitle = category === 'quick' ? 'Quick Algorithms (Ultra-Fast)' : 'Advanced Algorithms (Optimized)';
+                const categoryDesc = category === 'quick' ? 'Lightning-fast training, perfect for rapid prototyping' : 'More sophisticated algorithms, optimized for speed';
+                
+                categoryDiv.innerHTML = `
+                    <h5>${categoryTitle}</h5>
+                    <p class="text-muted">${categoryDesc}</p>
+                    <div class="row" id="${category}-algorithms"></div>
+                `;
+                
+                container.appendChild(categoryDiv);
+                
+                const algorithmContainer = document.getElementById(`${category}-algorithms`);
+                
+                Object.keys(algorithms[category]).forEach(algoName => {
+                    const algo = algorithms[category][algoName];
+                    const algoDiv = document.createElement('div');
+                    algoDiv.className = 'col-md-6 mb-3';
+                    
+                    algoDiv.innerHTML = `
+                        <div class="algorithm-card" onclick="selectAlgorithm('${algoName}', this)">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="mb-0">${algoName}</h6>
+                                <span class="badge bg-primary">${algo.category}</span>
+                            </div>
+                            <p class="text-muted small mb-0">${algo.description}</p>
+                            <div class="fast-training mt-2" style="font-size: 0.8rem; padding: 0.25rem 0.5rem;">
+                                <i class="bi bi-lightning-fill me-1"></i>
+                                &lt;5s training
+                            </div>
+                        </div>
+                    `;
+                    
+                    algorithmContainer.appendChild(algoDiv);
+                });
+            });
+        }
+
+        // Select algorithm
+        function selectAlgorithm(algorithmName, element) {
+            // Remove previous selection
+            document.querySelectorAll('.algorithm-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selection to clicked card
+            element.classList.add('selected');
+            selectedAlgorithm = algorithmName;
+            
+            // Enable training button
+            document.getElementById('start-training-btn').disabled = false;
+        }
+
+        // Start training
+        async function startTraining() {
+            if (!selectedAlgorithm) {
+                alert('Please select an algorithm');
+                return;
+            }
+            
+            showStep(3);
+            
+            // Fast progress simulation (2 seconds)
+            const progressBar = document.getElementById('training-progress');
+            const statusText = document.getElementById('training-status');
+            
+            const steps = [
+                'Preparing data...',
+                'Training model...',
+                'Evaluating performance...',
+                'Generating insights...'
+            ];
+            
+            for (let i = 0; i < steps.length; i++) {
+                statusText.textContent = steps[i];
+                progressBar.style.width = ((i + 1) / steps.length * 100) + '%';
+                await new Promise(resolve => setTimeout(resolve, 500)); // 0.5s per step = 2s total
+            }
+            
+            // Start actual training
+            await trainModel();
+        }
+
+        // Train model
+        async function trainModel() {
+            try {
+                const targetColumn = document.getElementById('target-column').value;
+                const featureColumns = Array.from(document.querySelectorAll('.feature-column:checked')).map(cb => cb.value);
+                const testSize = document.getElementById('test-size').value;
+                
+                const requestData = {
+                    target_column: targetColumn,
+                    feature_columns: featureColumns,
+                    algorithm: selectedAlgorithm,
+                    problem_type: selectedProblemType,
+                    test_size: parseFloat(testSize),
+                    session_id: currentSessionId
+                };
+                
+                console.log('Sending training request:', requestData);
+                
+                const response = await fetch('/api/automl/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    alert(result.error);
+                    return;
+                }
+                
+                currentModelId = result.model_id;
+                displayResults(result);
+                showStep(4);
+                
+            } catch (error) {
+                console.error('Error training model:', error);
+                alert('Error training model: ' + error.message);
+            }
+        }
+
+        // Display results
+        function displayResults(result) {
+            displayMetrics(result.metrics, result.problem_type);
+            displayFeatureImportance(result.feature_importance);
+            displayInsights(result.ai_insights);
+            
+            // Display training time
+            document.getElementById('training-time').textContent = result.training_time.toFixed(2);
+        }
+
+        // Display metrics
+        function displayMetrics(metrics, problemType) {
+            const container = document.getElementById('metrics-container');
+            container.innerHTML = '';
+            
+            if (problemType === 'classification') {
+                const metricsData = [
+                    { name: 'Accuracy', value: (metrics.accuracy * 100).toFixed(1) + '%', icon: 'bi-bullseye' },
+                    { name: 'Precision', value: (metrics.precision * 100).toFixed(1) + '%', icon: 'bi-target' },
+                    { name: 'Recall', value: (metrics.recall * 100).toFixed(1) + '%', icon: 'bi-search' },
+                    { name: 'F1-Score', value: (metrics.f1_score * 100).toFixed(1) + '%', icon: 'bi-graph-up' }
+                ];
+                
+                metricsData.forEach(metric => {
+                    const metricDiv = document.createElement('div');
+                    metricDiv.className = 'col-md-3 mb-3';
+                    metricDiv.innerHTML = `
+                        <div class="metric-card">
+                            <i class="bi ${metric.icon} mb-2" style="font-size: 2rem; color: #4facfe;"></i>
+                            <div class="metric-value">${metric.value}</div>
+                            <div class="text-muted">${metric.name}</div>
+                        </div>
+                    `;
+                    container.appendChild(metricDiv);
+                });
+                
+                // Display confusion matrix if available
+                if (metrics.confusion_matrix) {
+                    document.getElementById('performance-chart').innerHTML = `
+                        <img src="data:image/png;base64,${metrics.confusion_matrix}" 
+                             class="img-fluid" alt="Confusion Matrix">
+                    `;
+                }
+            } else {
+                const metricsData = [
+                    { name: 'R² Score', value: metrics.r2_score.toFixed(3), icon: 'bi-graph-up' },
+                    { name: 'RMSE', value: metrics.rmse.toFixed(3), icon: 'bi-exclamation-triangle' },
+                    { name: 'MSE', value: metrics.mse.toFixed(3), icon: 'bi-x-square' }
+                ];
+                
+                metricsData.forEach(metric => {
+                    const metricDiv = document.createElement('div');
+                    metricDiv.className = 'col-md-4 mb-3';
+                    metricDiv.innerHTML = `
+                        <div class="metric-card">
+                            <i class="bi ${metric.icon} mb-2" style="font-size: 2rem; color: #4facfe;"></i>
+                            <div class="metric-value">${metric.value}</div>
+                            <div class="text-muted">${metric.name}</div>
+                        </div>
+                    `;
+                    container.appendChild(metricDiv);
+                });
+                
+                // Display prediction plot if available
+                if (metrics.prediction_plot) {
+                    document.getElementById('performance-chart').innerHTML = `
+                        <img src="data:image/png;base64,${metrics.prediction_plot}" 
+                             class="img-fluid" alt="Prediction vs Actual">
+                    `;
+                }
+            }
+        }
+
+        // Display feature importance
+        function displayFeatureImportance(featureImportance) {
+            const container = document.getElementById('feature-importance-chart');
+            
+            if (!featureImportance || featureImportance.length === 0) {
+                container.innerHTML = '<p class="text-muted">Feature importance not available for this algorithm</p>';
+                return;
+            }
+            
+            const features = featureImportance.map(fi => fi[0]);
+            const importances = featureImportance.map(fi => fi[1]);
+            
+            const ctx = document.createElement('canvas');
+            container.innerHTML = '';
+            container.appendChild(ctx);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: features,
+                    datasets: [{
+                        label: 'Importance',
+                        data: importances,
+                        backgroundColor: 'rgba(79, 172, 254, 0.6)',
+                        borderColor: 'rgba(79, 172, 254, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white',
+                                maxRotation: 45
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display AI insights
+        function displayInsights(insights) {
+            const container = document.getElementById('ai-insights');
+            container.innerHTML = '';
+            
+            if (insights.performance_assessment) {
+                container.innerHTML += `
+                    <div class="mb-3">
+                        <h6><i class="bi bi-speedometer2 me-2"></i>Performance Assessment</h6>
+                        <p>${insights.performance_assessment}</p>
+                    </div>
+                `;
+            }
+            
+            if (insights.feature_insights) {
+                container.innerHTML += `
+                    <div class="mb-3">
+                        <h6><i class="bi bi-graph-up me-2"></i>Feature Insights</h6>
+                        <p>${insights.feature_insights}</p>
+                    </div>
+                `;
+            }
+            
+            if (insights.improvement_recommendations && insights.improvement_recommendations.length > 0) {
+                container.innerHTML += `
+                    <div class="mb-3">
+                        <h6><i class="bi bi-lightbulb me-2"></i>Improvement Recommendations</h6>
+                        <ul>
+                            ${insights.improvement_recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            if (insights.deployment_readiness) {
+                container.innerHTML += `
+                    <div class="mb-3">
+                        <h6><i class="bi bi-cloud-upload me-2"></i>Deployment Readiness</h6>
+                        <p>${insights.deployment_readiness}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Show step
+        function showStep(stepNumber) {
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(step => {
+                step.classList.add('d-none');
+            });
+            
+            // Show current step
+            const stepContents = [
+                'data-selection-step',
+                'algorithm-selection-step', 
+                'training-step',
+                'results-step'
+            ];
+            
+            document.getElementById(stepContents[stepNumber - 1]).classList.remove('d-none');
+            
+            // Update step indicator
+            document.querySelectorAll('.step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index + 1 < stepNumber) {
+                    step.classList.add('completed');
+                } else if (index + 1 === stepNumber) {
+                    step.classList.add('active');
+                }
+            });
+            
+            currentStep = stepNumber;
+        }
+
+        // Navigation functions
+        function backToDataSelection() {
+            showStep(1);
+        }
+
+        function startOver() {
+            selectedAlgorithm = null;
+            selectedProblemType = null;
+            currentModelId = null;
+            showStep(1);
+        }
+
+        // Feature engineering
+        function showFeatureEngineering() {
+            const modal = new bootstrap.Modal(document.getElementById('featureEngineeringModal'));
+            modal.show();
+        }
+
+        async function applyFeatureEngineering() {
+            const operations = [];
+            
+            if (document.getElementById('remove-missing').checked) {
+                operations.push({ type: 'remove_missing', threshold: 50 });
+            }
+            
+            if (document.getElementById('fill-missing').checked) {
+                operations.push({ type: 'fill_missing', method: 'mean', columns: [] });
+            }
+            
+            if (document.getElementById('remove-outliers').checked) {
+                const numericColumns = datasetInfo.columns_info
+                    .filter(col => col.type.includes('int') || col.type.includes('float'))
+                    .map(col => col.name);
+                operations.push({ type: 'remove_outliers', method: 'iqr', columns: numericColumns });
+            }
+            
+            if (document.getElementById('polynomial-features').checked) {
+                const numericColumns = datasetInfo.columns_info
+                    .filter(col => col.type.includes('int') || col.type.includes('float'))
+                    .map(col => col.name);
+                operations.push({ type: 'create_features', feature_type: 'polynomial', columns: numericColumns });
+            }
+            
+            if (document.getElementById('interaction-features').checked) {
+                const numericColumns = datasetInfo.columns_info
+                    .filter(col => col.type.includes('int') || col.type.includes('float'))
+                    .map(col => col.name);
+                operations.push({ type: 'create_features', feature_type: 'interaction', columns: numericColumns });
+            }
+            
+            if (document.getElementById('binning-features').checked) {
+                const numericColumns = datasetInfo.columns_info
+                    .filter(col => col.type.includes('int') || col.type.includes('float'))
+                    .map(col => col.name);
+                operations.push({ type: 'create_features', feature_type: 'binning', columns: numericColumns });
+            }
+            
+            try {
+                const response = await fetch('/api/automl/feature-engineering', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ operations })
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    alert(result.error);
+                    return;
+                }
+                
+                // Update dataset info
+                datasetInfo.columns_info = result.columns_info;
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('featureEngineeringModal')).hide();
+                
+                // Show success message
+                alert(`Feature engineering completed!\nRows: ${result.summary.rows_changed >= 0 ? '+' : ''}${result.summary.rows_changed}\nColumns: ${result.summary.columns_changed >= 0 ? '+' : ''}${result.summary.columns_changed}`);
+                
+                // Refresh column selection
+                populateColumns();
+                
+            } catch (error) {
+                console.error('Error applying feature engineering:', error);
+                alert('Error applying feature engineering');
+            }
+        }
+
+        // Download functions
+        async function downloadModel() {
+            if (!currentModelId) {
+                alert('No model available for download');
+                return;
+            }
+            
+            window.open(`/api/automl/download-model?model_id=${currentModelId}`, '_blank');
+        }
+
+        async function downloadData() {
+            window.open('/api/automl/download-data', '_blank');
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            loadDatasetInfo();
+        });
+    </script>
+</body>
+</html>

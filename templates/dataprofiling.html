@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Profiling - Data Analysis Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #0072c6;
+            --secondary-color: #5c2d91;
+            --accent-color: #00b294;
+            --light-bg: #f5f5f5;
+            --dark-bg: #333333;
+            --success-color: #107c10;
+            --warning-color: #ff8c00;
+            --danger-color: #e81123;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            color: white !important;
+        }
+        
+        .sidebar {
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            height: calc(100vh - 56px);
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: 250px;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .sidebar.collapsed {
+            margin-left: -250px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
+        }
+        
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .column-card {
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 15px;
+            transition: transform 0.3s;
+        }
+        
+        .column-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .numeric-column {
+            border-left-color: var(--primary-color);
+        }
+        
+        .categorical-column {
+            border-left-color: var(--secondary-color);
+        }
+        
+        .datetime-column {
+            border-left-color: var(--accent-color);
+        }
+        
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: rgba(0, 0, 0, 0.03);
+            cursor: pointer;
+        }
+        
+        .column-body {
+            padding: 15px;
+            display: none;
+        }
+        
+        .column-body.active {
+            display: block;
+        }
+        
+        .column-type-badge {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+        }
+        
+        .missing-value-bar {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .missing-value-indicator {
+            height: 100%;
+            background-color: var(--danger-color);
+        }
+        
+        .correlation-matrix {
+            overflow: auto;
+            max-height: 500px;
+        }
+        
+        .insight-card {
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 15px;
+            transition: transform 0.3s;
+        }
+        
+        .insight-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .insight-title {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .nav-link {
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(0, 114, 198, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .slide-in-up {
+            animation: slideInUp 0.5s ease-out;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+            
+            .sidebar.active {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <button id="sidebar-toggle" class="btn btn-link text-white me-3 d-md-none">
+                <i class="bi bi-list"></i>
+            </button>
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-braces-asterisk me-2"></i>
+                Data Analysis Platform
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/">
+                            <i class="bi bi-house-door me-1"></i>
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">
+                            <i class="bi bi-question-circle"></i>
+                            Help
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar and Main Content -->
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="p-3">
+                <h5 class="mb-3 border-bottom pb-2">Features</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/dataprofiling">
+                            <i class="bi bi-clipboard-data"></i>
+                            Data Profiling
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/automl">
+                            <i class="bi bi-robot"></i>
+                            AutoML
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/textclassification">
+                            <i class="bi bi-chat-square-text"></i>
+                            Text Classification
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/llmcodegeneration">
+                            <i class="bi bi-code-square"></i>
+                            LLM-based Code Generation
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="mb-3">
+                            <i class="bi bi-clipboard-data me-2"></i>
+                            Data Profiling
+                        </h2>
+                        <p class="lead">Explore your data with statistics, visualizations, and AI-powered insights.</p>
+                    </div>
+                </div>
+                
+                <!-- Loading Spinner -->
+                <div class="loading-spinner" id="loading-spinner">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing your data...</p>
+                </div>
+                
+                <!-- Data Profiling Content -->
+                <div id="profiling-content" style="display: none;">
+                    <!-- Basic Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h3 class="mb-3">Basic Statistics</h3>
+                        </div>
+                        
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card text-center">
+                                <div class="stat-icon">
+                                    <i class="bi bi-table"></i>
+                                </div>
+                                <div class="stat-value" id="row-count">0</div>
+                                <div class="stat-label">Rows</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card text-center">
+                                <div class="stat-icon">
+                                    <i class="bi bi-columns-gap"></i>
+                                </div>
+                                <div class="stat-value" id="column-count">0</div>
+                                <div class="stat-label">Columns</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card text-center">
+                                <div class="stat-icon">
+                                    <i class="bi bi-hdd"></i>
+                                </div>
+                                <div class="stat-value" id="memory-usage">0 MB</div>
+                                <div class="stat-label">Memory Usage</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card text-center">
+                                <div class="stat-icon">
+                                    <i class="bi bi-files"></i>
+                                </div>
+                                <div class="stat-value" id="duplicate-count">0</div>
+                                <div class="stat-label">Duplicate Rows</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Insights -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-lightbulb me-2"></i>
+                                        AI-Powered Insights
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="ai-insights-container">
+                                        <!-- AI insights will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Correlation Matrix -->
+                    <div class="row mb-4" id="correlation-section" style="display: none;">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-grid-3x3 me-2"></i>
+                                        Correlation Matrix
+                                    </h5>
+                                </div>
+                                <div class="card-body correlation-matrix">
+                                    <img id="correlation-plot" class="img-fluid" alt="Correlation Matrix">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Column Details -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-columns me-2"></i>
+                                        Column Details
+                                    </h5>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary me-2" id="expand-all-btn">
+                                            <i class="bi bi-arrows-expand me-1"></i>
+                                            Expand All
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" id="collapse-all-btn">
+                                            <i class="bi bi-arrows-collapse me-1"></i>
+                                            Collapse All
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="columns-container">
+                                        <!-- Column cards will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+            }
+            
+            // Loading elements
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const profilingContent = document.getElementById('profiling-content');
+            
+            // Fetch data profiling results
+            fetchDataProfiling();
+            
+            function fetchDataProfiling() {
+                fetch('/api/dataprofiling')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Hide loading spinner
+                        loadingSpinner.style.display = 'none';
+                        
+                        // Show profiling content
+                        profilingContent.style.display = 'block';
+                        
+                        // Update basic statistics
+                        document.getElementById('row-count').textContent = data.basic_info.rows;
+                        document.getElementById('column-count').textContent = data.basic_info.columns;
+                        document.getElementById('memory-usage').textContent = data.basic_info.memory_usage;
+                        document.getElementById('duplicate-count').textContent = data.basic_info.duplicated_rows;
+                        
+                        // Update correlation matrix if available
+                        if (data.correlation_matrix) {
+                            document.getElementById('correlation-section').style.display = 'block';
+                            document.getElementById('correlation-plot').src = 'data:image/png;base64,' + data.correlation_matrix;
+                        }
+                        
+                        // Update AI insights
+                        updateAIInsights(data.ai_insights);
+                        
+                        // Update column details
+                        updateColumnDetails(data.columns);
+                        
+                        // Setup expand/collapse all buttons
+                        setupExpandCollapseButtons();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        loadingSpinner.style.display = 'none';
+                        
+                        // Show error message
+                        alert('Error fetching data profiling results: ' + error.message);
+                    });
+            }
+            
+            function updateAIInsights(insights) {
+                const container = document.getElementById('ai-insights-container');
+                container.innerHTML = '';
+                
+                if (!insights || insights.error) {
+                    container.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Unable to generate AI insights at this time.
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Add insights
+                if (insights.insights && insights.insights.length > 0) {
+                    const insightsHtml = insights.insights.map(insight => `
+                        <div class="card insight-card mb-3">
+                            <div class="card-body">
+                                <h5 class="insight-title">
+                                    <i class="bi bi-lightbulb me-2"></i>
+                                    ${insight.title}
+                                </h5>
+                                <p>${insight.description}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    container.innerHTML += `
+                        <h5 class="mb-3">Key Insights</h5>
+                        ${insightsHtml}
+                    `;
+                }
+                
+                // Add suggested analyses
+                if (insights.suggested_analyses && insights.suggested_analyses.length > 0) {
+                    const analysesHtml = insights.suggested_analyses.map(analysis => `
+                        <div class="card insight-card mb-3">
+                            <div class="card-body">
+                                <h5 class="insight-title">
+                                    <i class="bi bi-graph-up me-2"></i>
+                                    ${analysis.title}
+                                </h5>
+                                <p>${analysis.description}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    container.innerHTML += `
+                        <h5 class="mb-3 mt-4">Suggested Analyses</h5>
+                        ${analysesHtml}
+                    `;
+                }
+            }
+            
+            function updateColumnDetails(columns) {
+                const container = document.getElementById('columns-container');
+                container.innerHTML = '';
+                
+                columns.forEach((column, index) => {
+                    let columnType = 'text-muted';
+                    let columnClass = '';
+                    let columnIcon = 'bi-fonts';
+                    
+                    if (column.type.includes('int') || column.type.includes('float')) {
+                        columnType = 'text-primary';
+                        columnClass = 'numeric-column';
+                        columnIcon = 'bi-123';
+                    } else if (column.type.includes('datetime')) {
+                        columnType = 'text-success';
+                        columnClass = 'datetime-column';
+                        columnIcon = 'bi-calendar';
+                    } else {
+                        columnType = 'text-secondary';
+                        columnClass = 'categorical-column';
+                        columnIcon = 'bi-card-text';
+                    }
+                    
+                    let columnCard = `
+                        <div class="card column-card ${columnClass}">
+                            <div class="column-header" data-bs-toggle="collapse" data-bs-target="#column-${index}">
+                                <div>
+                                    <i class="bi ${columnIcon} me-2"></i>
+                                    <strong>${column.name}</strong>
+                                    <span class="badge bg-light ${columnType} column-type-badge ms-2">${column.type}</span>
+                                </div>
+                                <div>
+                                    <span class="badge bg-danger me-2" title="Missing Values">${column.missing_pct}</span>
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                            </div>
+                            <div class="column-body collapse" id="column-${index}">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Statistics</h6>
+                                        <table class="table table-sm">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Missing Values</td>
+                                                    <td>${column.missing} (${column.missing_pct})</td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <div class="missing-value-bar">
+                                                            <div class="missing-value-indicator" style="width: ${column.missing_pct}"></div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                    `;
+                    
+                    // Add numeric statistics
+                    if (column.min !== undefined) {
+                        columnCard += `
+                                                <tr>
+                                                    <td>Min</td>
+                                                    <td>${column.min}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Max</td>
+                                                    <td>${column.max}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Mean</td>
+                                                    <td>${column.mean}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Median</td>
+                                                    <td>${column.median}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Standard Deviation</td>
+                                                    <td>${column.std}</td>
+                                                </tr>
+                        `;
+                    }
+                    
+                    // Add categorical statistics
+                    if (column.unique_values !== undefined) {
+                        columnCard += `
+                                                <tr>
+                                                    <td>Unique Values</td>
+                                                    <td>${column.unique_values}</td>
+                                                </tr>
+                        `;
+                        
+                        if (column.top_values) {
+                            columnCard += `
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <h6 class="mt-3">Top Values</h6>
+                                                        <table class="table table-sm">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Value</th>
+                                                                    <th>Count</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                            `;
+                            
+                            for (const [value, count] of Object.entries(column.top_values)) {
+                                columnCard += `
+                                                                <tr>
+                                                                    <td>${value}</td>
+                                                                    <td>${count}</td>
+                                                                </tr>
+                                `;
+                            }
+                            
+                            columnCard += `
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                            `;
+                        }
+                    }
+                    
+                    // Close the statistics table
+                    columnCard += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                    `;
+                    
+                    // Add visualizations
+                    columnCard += `
+                                    <div class="col-md-6">
+                                        <h6>Visualization</h6>
+                    `;
+                    
+                    if (column.histogram) {
+                        columnCard += `
+                                        <img src="data:image/png;base64,${column.histogram}" class="img-fluid" alt="Histogram for ${column.name}">
+                        `;
+                    } else if (column.barplot) {
+                        columnCard += `
+                                        <img src="data:image/png;base64,${column.barplot}" class="img-fluid" alt="Bar plot for ${column.name}">
+                        `;
+                    } else {
+                        columnCard += `
+                                        <div class="alert alert-light">
+                                            No visualization available for this column.
+                                        </div>
+                        `;
+                    }
+                    
+                    // Close the visualization div
+                    columnCard += `
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.innerHTML += columnCard;
+                });
+                
+                // Add click handlers for column headers
+                document.querySelectorAll('.column-header').forEach(header => {
+                    header.addEventListener('click', function() {
+                        const icon = this.querySelector('.bi-chevron-down, .bi-chevron-up');
+                        if (icon) {
+                            icon.classList.toggle('bi-chevron-down');
+                            icon.classList.toggle('bi-chevron-up');
+                        }
+                    });
+                });
+            }
+            
+            function setupExpandCollapseButtons() {
+                const expandAllBtn = document.getElementById('expand-all-btn');
+                const collapseAllBtn = document.getElementById('collapse-all-btn');
+                
+                expandAllBtn.addEventListener('click', function() {
+                    document.querySelectorAll('.column-body').forEach(body => {
+                        body.classList.add('show');
+                    });
+                    
+                    document.querySelectorAll('.column-header .bi-chevron-down').forEach(icon => {
+                        icon.classList.remove('bi-chevron-down');
+                        icon.classList.add('bi-chevron-up');
+                    });
+                });
+                
+                collapseAllBtn.addEventListener('click', function() {
+                    document.querySelectorAll('.column-body').forEach(body => {
+                        body.classList.remove('show');
+                    });
+                    
+                    document.querySelectorAll('.column-header .bi-chevron-up').forEach(icon => {
+                        icon.classList.remove('bi-chevron-up');
+                        icon.classList.add('bi-chevron-down');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

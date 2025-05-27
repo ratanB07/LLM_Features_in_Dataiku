@@ -1,0 +1,1217 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataiku - Data Science Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --sidebar-width: 280px;
+            --header-height: 72px;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        /* Navbar Styles - Dataiku inspired */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            height: var(--header-height);
+            z-index: 1030;
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand img {
+            height: 32px;
+            margin-right: 12px;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+            height: calc(100vh - var(--header-height));
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            overflow-y: auto;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1020;
+            padding: 24px 0;
+            border-right: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+        
+        .nav-link {
+            color: var(--dark-color);
+            font-weight: 500;
+            padding: 12px 20px;
+            margin: 4px 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-link:hover {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+        
+        .nav-link.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(51, 102, 255, 0.3);
+        }
+        
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: calc(100vh - var(--header-height));
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
+        }
+        
+        /* Hero Section - Dataiku style */
+        .hero-section {
+            background: var(--gradient-primary);
+            border-radius: 24px;
+            padding: 60px 40px;
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Upload Area Styles */
+        .upload-area {
+            border: 2px dashed #CBD5E1;
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .upload-area:hover::before,
+        .upload-area.dragover::before {
+            opacity: 0.05;
+        }
+        
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(51, 102, 255, 0.1);
+        }
+        
+        .upload-area > * {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .upload-icon {
+            font-size: 64px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+            display: block;
+        }
+        
+        /* Feature Cards - Dataiku style */
+        .feature-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            height: 100%;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(51, 102, 255, 0.15);
+            border-color: var(--primary-color);
+        }
+        
+        .feature-card.active {
+            border: 2px solid var(--primary-color);
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+        }
+        
+        .feature-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .feature-badge.new {
+            background: linear-gradient(135deg, #EF4444 0%, #F59E0B 100%);
+        }
+        
+        .feature-badge.popular {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        /* Data Preview Styles */
+        .data-preview {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            padding: 32px;
+            margin-top: 40px;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        /* Table Styles */
+        .table-responsive {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table {
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+        
+        .table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 16px 20px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(51, 102, 255, 0.02);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(51, 102, 255, 0.05);
+        }
+        
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 80px;
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+            width: 4rem;
+            height: 4rem;
+            border-width: 0.3em;
+        }
+        
+        /* Progress Bars */
+        .progress {
+            height: 6px;
+            border-radius: 6px;
+            background-color: rgba(51, 102, 255, 0.1);
+        }
+        
+        .progress-bar {
+            background: var(--gradient-primary);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 6px;
+        }
+        
+        /* Badges */
+        .badge {
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .bg-primary {
+            background: var(--gradient-primary) !important;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 10px 22px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .slide-in-right {
+            animation: slideInRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-section {
+                padding: 40px 24px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .upload-area {
+                padding: 40px 24px;
+            }
+        }
+        
+        /* Dataset Info Chip */
+        .dataset-chip {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-radius: 24px;
+            padding: 8px 20px;
+            display: inline-flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+            border: 1px solid rgba(51, 102, 255, 0.2);
+        }
+        
+        .dataset-chip i {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+        
+        .empty-state-icon {
+            font-size: 80px;
+            color: #CBD5E1;
+            margin-bottom: 24px;
+        }
+        
+        /* Tooltips */
+        .tooltip-inner {
+            background-color: var(--dark-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #CBD5E1 0%, #94A3B8 100%);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #94A3B8 0%, #64748B 100%);
+        }
+        
+        /* Dropdown styles */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 8px;
+        }
+        
+        .dropdown-item {
+            border-radius: 8px;
+            padding: 8px 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(51, 102, 255, 0.1);
+            color: var(--primary-color);
+        }
+        
+        /* Recent projects styling */
+        .list-group-item {
+            border-radius: 8px !important;
+            border: none !important;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .list-group-item:hover {
+            background-color: rgba(51, 102, 255, 0.05);
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container-fluid">
+            <button id="sidebar-toggle" class="btn btn-link me-3 d-lg-none">
+                <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+            </button>
+            <a class="navbar-brand" href="#">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
+                    <path d="M8 12h16v8H8z" fill="white" opacity="0.9"/>
+                    <path d="M12 8h8v16h-8z" fill="white" opacity="0.7"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3366FF"/>
+                            <stop offset="50%" style="stop-color:#6366F1"/>
+                            <stop offset="100%" style="stop-color:#8B5CF6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                Dataiku
+            </a>
+            <div class="d-flex align-items-center ms-auto">
+                <div id="dataset-chip" class="dataset-chip me-3 d-none">
+                    <i class="bi bi-table"></i>
+                    <span id="dataset-name">No dataset loaded</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>
+                        User
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="px-3">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0" style="color: var(--dark-color); font-weight: 700;">Navigation</h5>
+                <button class="btn btn-sm btn-outline-secondary d-lg-none" id="collapse-sidebar">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+            </div>
+            
+            <ul class="nav flex-column">
+                <li class="nav-item mb-1">
+                    <a class="nav-link active" href="#" data-feature="home">
+                        <i class="bi bi-house-door me-3"></i>
+                        Home
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link" href="/dataprofiling" data-feature="data-profiling">
+                        <i class="bi bi-clipboard-data me-3"></i>
+                        Data Profiling
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link" href="#" onclick="navigateToAutoML()" data-feature="automl">
+                        <i class="bi bi-robot me-3"></i>
+                        AutoML
+                    </a>
+                </li>
+                
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link" href="/llmcodegeneration" data-feature="llm-codegen">
+                        <i class="bi bi-code-square me-3"></i>
+                        Code Generation
+                    </a>
+                </li>
+                
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link" href="/llm_mesh" data-feature="llm-mesh">
+                        <i class="bi bi-diagram-3 me-3"></i>
+                        LLM Mesh Analysis
+                    </a>
+                </li>
+                
+                
+            </ul>
+            
+            <hr class="my-4" style="border-color: rgba(51, 102, 255, 0.2);">
+            
+            <h6 class="mb-3" style="color: var(--dark-color); font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Recent Projects</h6>
+            <div class="list-group list-group-flush">
+                <a href="#" class="list-group-item list-group-item-action border-0 py-2">
+                    <i class="bi bi-file-earmark-text me-2" style="color: var(--primary-color);"></i>
+                    Customer Analysis
+                </a>
+                <a href="#" class="list-group-item list-group-item-action border-0 py-2">
+                    <i class="bi bi-file-earmark-text me-2" style="color: var(--primary-color);"></i>
+                    Sales Forecast
+                </a>
+                <a href="#" class="list-group-item list-group-item-action border-0 py-2">
+                    <i class="bi bi-file-earmark-text me-2" style="color: var(--primary-color);"></i>
+                    Sentiment Analysis
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <!-- Upload Section -->
+        <div class="container" id="upload-section">
+            <!-- Hero Section -->
+            <div class="hero-section animate__animated animate__fadeIn">
+                <div class="hero-content">
+                    <h1 class="hero-title">Transform Data Into Impact</h1>
+                    <p class="hero-subtitle">The platform that makes data science accessible to everyone. Build, deploy, and manage AI projects at scale with our comprehensive data science platform.</p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <button class="btn btn-light btn-lg px-4 py-3" style="color: var(--primary-color); font-weight: 600;">
+                            <i class="bi bi-play-circle me-2"></i>
+                            Get Started
+                        </button>
+                        <button class="btn btn-outline-light btn-lg px-4 py-3">
+                            <i class="bi bi-play me-2"></i>
+                            Watch Demo
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-12 text-center mb-5">
+                    <h2 class="fw-bold mb-3 animate__animated animate__fadeIn" style="color: var(--dark-color); font-size: 2.5rem;">Start Your Data Journey</h2>
+                    <p class="lead text-muted animate__animated animate__fadeIn animate__delay-1s" style="font-size: 1.2rem;">Upload your dataset to unlock powerful AI-driven analysis features</p>
+                </div>
+                
+                <div class="col-lg-10 animate__animated animate__fadeIn animate__delay-2s">
+                    <div class="upload-area" id="upload-area">
+                        <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                        <h4 style="color: var(--dark-color); font-weight: 700; margin-bottom: 16px;">Drag & Drop your file here</h4>
+                        <p class="text-muted mb-4" style="font-size: 1.1rem;">or</p>
+                        <input type="file" id="file-input" class="d-none" accept=".csv,.xlsx,.xls">
+                        <button class="btn btn-primary px-5 py-3" id="browse-files-btn" style="font-size: 16px;">
+                            <i class="bi bi-file-earmark-arrow-up me-2"></i>
+                            Browse Files
+                        </button>
+                        <p class="mt-4 text-muted" style="font-size: 14px;">Supported formats: CSV, Excel (.xlsx, .xls) • Max file size: 100MB</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loading-spinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h4 class="mt-4" style="color: var(--dark-color);">Processing your data...</h4>
+            <p class="text-muted">This may take a few moments</p>
+        </div>
+        
+        <!-- Data Preview Section -->
+        <div class="container d-none" id="data-preview-section">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h3 class="mb-2" style="color: var(--dark-color); font-weight: 700;">Dataset Overview</h3>
+                            <p class="text-muted mb-0">Explore your data and discover insights</p>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <button class="btn btn-outline-secondary" id="upload-new-btn">
+                                <i class="bi bi-arrow-repeat me-2"></i>
+                                Upload New
+                            </button>
+                            <button class="btn btn-primary" id="explore-btn">
+                                <i class="bi bi-compass me-2"></i>
+                                Explore Features
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="data-preview">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h4 id="dataset-title" style="color: var(--dark-color); font-weight: 700;">Dataset Preview</h4>
+                                <p class="text-muted mb-0" id="dataset-info">0 rows × 0 columns</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <span class="badge bg-primary" id="row-count">0 rows</span>
+                                <span class="badge" style="background: var(--gradient-secondary); color: white;" id="column-count">0 columns</span>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="preview-table">
+                                <thead>
+                                    <tr id="table-header">
+                                        <!-- Headers will be inserted here -->
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <!-- Data rows will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features Section -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="text-center mb-5">
+                        <h4 class="mb-3" style="color: var(--dark-color); font-weight: 700; font-size: 2rem;">AI-Powered Analysis Features</h4>
+                        <p class="text-muted" style="font-size: 1.1rem;">Choose from our comprehensive suite of data science tools</p>
+                    </div>
+                    <div class="feature-grid" id="feature-grid">
+                        <!-- Feature cards will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        
+        // Feature configuration - Add new features here
+const features = [
+    {
+        id: 'data-profiling',
+        title: 'Data Profiling',
+        description: 'Explore your data with statistics, visualizations, and AI-powered insights to understand patterns and quality.',
+        icon: 'bi-clipboard-data',
+        progress: 100,
+        badge: 'Popular',
+        route: '/dataprofiling'
+    },
+    {
+        id: 'automl',
+        title: 'AutoML',
+        description: 'Automatically build and train machine learning models with zero coding required. AI handles feature engineering and model selection.',
+        icon: 'bi-robot',
+        progress: 85,
+        route: '/automl'
+    },
+    
+    {
+        id: 'llm-codegen',
+        title: 'AI Code Generation',
+        description: 'Generate Python code for data analysis and visualization using large language models. Accelerate your workflow.',
+        icon: 'bi-code-square',
+        progress: 65,
+        badge: 'New',
+        route: '/llmcodegeneration'
+    },
+    
+    
+    {
+        id: 'llm-mesh',
+        title: 'LLM Mesh Analysis',
+        description: 'Manage and compare outputs from multiple LLMs for ETL, analysis, and decision-making processes.',
+        icon: 'bi-diagram-3',
+        progress: 90,
+        badge: 'Advanced',
+        route: '/llm_mesh'
+    }
+];
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Current state of the application
+            const appState = {
+                currentDataset: null,
+                currentFeature: null,
+                sessionId: null
+            };
+            
+            // DOM Elements
+            const elements = {
+                sidebarToggle: document.getElementById('sidebar-toggle'),
+                collapseSidebar: document.getElementById('collapse-sidebar'),
+                sidebar: document.getElementById('sidebar'),
+                mainContent: document.getElementById('main-content'),
+                fileInput: document.getElementById('file-input'),
+                browseFilesBtn: document.getElementById('browse-files-btn'),
+                uploadArea: document.getElementById('upload-area'),
+                loadingSpinner: document.getElementById('loading-spinner'),
+                uploadSection: document.getElementById('upload-section'),
+                dataPreviewSection: document.getElementById('data-preview-section'),
+                datasetChip: document.getElementById('dataset-chip'),
+                datasetName: document.getElementById('dataset-name'),
+                datasetTitle: document.getElementById('dataset-title'),
+                datasetInfo: document.getElementById('dataset-info'),
+                rowCount: document.getElementById('row-count'),
+                columnCount: document.getElementById('column-count'),
+                tableHeader: document.getElementById('table-header'),
+                tableBody: document.getElementById('table-body'),
+                uploadNewBtn: document.getElementById('upload-new-btn'),
+                exploreBtn: document.getElementById('explore-btn'),
+                featureGrid: document.getElementById('feature-grid')
+            };
+            
+            // Initialize the application
+            function init() {
+                setupEventListeners();
+                checkSession();
+                renderFeatureCards();
+            }
+            
+            // Render feature cards dynamically
+            function renderFeatureCards() {
+                if (!elements.featureGrid) return;
+                
+                elements.featureGrid.innerHTML = '';
+                
+                features.forEach((feature, index) => {
+                    const delay = index * 0.1;
+                    const card = document.createElement('div');
+                    card.className = `feature-card animate__animated animate__fadeInUp`;
+                    card.style.animationDelay = `${delay}s`;
+                    card.setAttribute('data-feature', feature.id);
+                    
+                    let badge = '';
+                    if (feature.badge) {
+                        const badgeClass = feature.badge.toLowerCase() === 'new' ? 'new' : feature.badge.toLowerCase() === 'popular' ? 'popular' : '';
+                        badge = `<div class="feature-badge ${badgeClass}">${feature.badge}</div>`;
+                    }
+                    
+                    card.innerHTML = `
+                        ${badge}
+                        <div class="p-4">
+                            <div class="feature-icon">
+                                <i class="bi ${feature.icon}"></i>
+                            </div>
+                            <h5 style="color: var(--dark-color); font-weight: 700; margin-bottom: 16px;">${feature.title}</h5>
+                            <p class="text-muted" style="line-height: 1.6; margin-bottom: 20px;">${feature.description}</p>
+                            <div class="progress mt-3">
+                                <div class="progress-bar" style="width: ${feature.progress}%"></div>
+                            </div>
+                            <small class="text-muted" style="font-size: 12px;">Ready to use</small>
+                        </div>
+                    `;
+                    
+                    card.addEventListener('click', () => navigateToFeature(feature.id));
+                    elements.featureGrid.appendChild(card);
+                });
+            }
+            
+            // Set up all event listeners
+            function setupEventListeners() {
+                // Sidebar toggle
+                if (elements.sidebarToggle) {
+                    elements.sidebarToggle.addEventListener('click', toggleSidebar);
+                }
+                
+                if (elements.collapseSidebar) {
+                    elements.collapseSidebar.addEventListener('click', toggleSidebar);
+                }
+                
+                // File upload handling
+                elements.browseFilesBtn.addEventListener('click', () => elements.fileInput.click());
+                elements.fileInput.addEventListener('change', handleFileUpload);
+                
+                // Drag and drop functionality
+                elements.uploadArea.addEventListener('dragover', handleDragOver);
+                elements.uploadArea.addEventListener('dragleave', handleDragLeave);
+                elements.uploadArea.addEventListener('drop', handleDrop);
+                
+                // Feature navigation
+                document.querySelectorAll('[data-feature]').forEach(element => {
+                    element.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const feature = this.getAttribute('data-feature');
+                        navigateToFeature(feature);
+                    });
+                });
+                
+                // Upload new button
+                elements.uploadNewBtn.addEventListener('click', resetUpload);
+                
+                // Explore button
+                elements.exploreBtn.addEventListener('click', function() {
+                    navigateToFeature('data-profiling');
+                });
+            }
+            
+            // Check if there's an active session
+            function checkSession() {
+                // In a real app, you would check cookies or localStorage
+                // For now, we'll just initialize without a session
+                appState.sessionId = null;
+            }
+            
+            // Toggle sidebar visibility
+            function toggleSidebar() {
+                elements.sidebar.classList.toggle('collapsed');
+                elements.mainContent.classList.toggle('expanded');
+            }
+            
+            // Handle file upload
+            function handleFileUpload() {
+                if (!elements.fileInput.files || elements.fileInput.files.length === 0) {
+                    console.log('No file selected');
+                    return;
+                }
+                
+                const file = elements.fileInput.files[0];
+                console.log('File selected:', file.name);
+                
+                // Show loading spinner
+                showLoading(true);
+                
+                // Create FormData object
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // Send file to server
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.error || 'Upload failed'); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Process the response
+                    processUploadResponse(data);
+                })
+                .catch(error => {
+                    console.error('Upload error:', error);
+                    showLoading(false);
+                    alert('Error uploading file: ' + error.message);
+                });
+            }
+            
+            // Process the upload response
+            function processUploadResponse(data) {
+                // Hide loading spinner
+                showLoading(false);
+                
+                // Store the current dataset
+                appState.currentDataset = data;
+                appState.sessionId = data.session_id;
+                
+                // Update UI
+                updateDatasetInfo();
+                showDataPreview();
+                renderDataPreview();
+                
+                // Show dataset chip
+                elements.datasetChip.classList.remove('d-none');
+                elements.datasetName.textContent = data.filename;
+            }
+            
+            // Update dataset information in the UI
+            function updateDatasetInfo() {
+                if (appState.currentDataset) {
+                    elements.datasetTitle.textContent = appState.currentDataset.filename;
+                    elements.datasetInfo.textContent = `${appState.currentDataset.rows} rows × ${appState.currentDataset.columns} columns`;
+                    elements.rowCount.textContent = `${appState.currentDataset.rows} rows`;
+                    elements.columnCount.textContent = `${appState.currentDataset.columns} columns`;
+                }
+            }
+            
+            // Show loading spinner
+            function showLoading(show) {
+                if (show) {
+                    elements.uploadSection.style.display = 'none';
+                    elements.dataPreviewSection.classList.add('d-none');
+                    elements.loadingSpinner.style.display = 'block';
+                } else {
+                    elements.loadingSpinner.style.display = 'none';
+                }
+            }
+            
+            // Show data preview section
+            function showDataPreview() {
+                elements.uploadSection.style.display = 'none';
+                elements.dataPreviewSection.classList.remove('d-none');
+            }
+            
+            // Render data preview table
+            function renderDataPreview() {
+                if (!appState.currentDataset) return;
+                
+                const data = appState.currentDataset;
+                
+                // Create table header
+                elements.tableHeader.innerHTML = '';
+                data.column_names.forEach(column => {
+                    const th = document.createElement('th');
+                    th.textContent = column;
+                    elements.tableHeader.appendChild(th);
+                });
+                
+                // Create table body
+                elements.tableBody.innerHTML = '';
+                data.preview.forEach(row => {
+                    const tr = document.createElement('tr');
+                    data.column_names.forEach(column => {
+                        const td = document.createElement('td');
+                        td.textContent = row[column] !== null && row[column] !== undefined ? row[column] : 'null';
+                        tr.appendChild(td);
+                    });
+                    elements.tableBody.appendChild(tr);
+                });
+            }
+            
+            // Reset upload section
+            function resetUpload() {
+                elements.fileInput.value = '';
+                appState.currentDataset = null;
+                appState.sessionId = null;
+                
+                elements.dataPreviewSection.classList.add('d-none');
+                elements.datasetChip.classList.add('d-none');
+                elements.uploadSection.style.display = 'block';
+            }
+            
+            // Navigate to a specific feature
+            function navigateToFeature(feature) {
+                if (!appState.currentDataset) {
+                    alert('Please upload a dataset first');
+                    return;
+                }
+                
+                appState.currentFeature = feature;
+                
+                // Highlight the active sidebar link
+                document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                const activeLink = document.querySelector(`.sidebar .nav-link[data-feature="${feature}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+                
+                // Find the feature in our configuration
+                const featureConfig = features.find(f => f.id === feature);
+                if (featureConfig && featureConfig.route) {
+                    window.location.href = featureConfig.route;
+                } else if (feature === 'home') {
+                    // Already on home page
+                }
+            }
+            
+            // Drag and drop handlers
+            function handleDragOver(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                elements.uploadArea.classList.add('dragover');
+            }
+            
+            function handleDragLeave() {
+                elements.uploadArea.classList.remove('dragover');
+            }
+            
+            function handleDrop(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                elements.uploadArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    elements.fileInput.files = e.dataTransfer.files;
+                    handleFileUpload();
+                }
+            }
+            
+            // Initialize the application
+            init();
+
+            function navigateToAutoML() {
+                if (!appState.currentDataset) {
+                    alert('Please upload a dataset first');
+                    return;
+                }
+                
+                // Store session ID in localStorage
+                localStorage.setItem('session_id', appState.sessionId);
+                
+                // Open AutoML in new tab with session ID
+                window.open(`/automl?session_id=${appState.sessionId}`, '_blank');
+            }
+
+        
+  
+        
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        });
+    </script>
+</body>
+</html>
